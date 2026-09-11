@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu carrito — Baby Saraí</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="logo">Baby Saraí</a>
+    <nav class="main-nav" data-main-nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="categoria.html?cat=ninas">Niñas</a></li>
+        <li><a href="categoria.html?cat=ninos">Niños</a></li>
+        <li><a href="categoria.html?cat=recien-nacido">Recién nacido</a></li>
+        <li><a href="categoria.html?cat=ofertas">Ofertas</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" data-search-toggle aria-label="Buscar" aria-expanded="false">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Buscar</span>
+      </button>
+      <div class="search-box" data-search-box><div>
+        <input type="search" data-search-input placeholder="Buscar productos..." aria-label="Buscar productos">
+      </div></div>
+      <a href="favoritos.html" class="fav-link" aria-label="Favoritos">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg>
+        <span class="fav-count" data-fav-count>0</span>
+      </a>
+      <a href="carrito.html" class="cart-link">
+        Carrito <span class="cart-count" data-cart-count>0</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <h1 style="font-size:1.8rem; margin-bottom:24px;" data-cart-title>Tu carrito</h1>
+
+    <div class="cart-layout">
+      <div>
+        <div data-cart-list></div>
+        <div class="cart-empty" data-cart-empty style="display:none;">
+          <p>Tu carrito está vacío.</p>
+          <a href="index.html" class="btn btn-outline" style="margin-top:16px;">Ir a comprar</a>
+        </div>
+      </div>
+
+      <aside class="summary-card">
+        <h3 style="font-size:1.05rem; margin-bottom:16px;">Resumen del pedido</h3>
+        <div class="summary-row"><span>Subtotal</span><span data-subtotal>$0</span></div>
+        <div class="summary-row"><span>Envío</span><span data-shipping>—</span></div>
+        <div class="summary-row summary-row--total"><span>Total</span><span data-total>$0</span></div>
+        <a href="checkout.html" class="btn btn-primary btn-block" style="margin-top:20px;" data-go-checkout>Continuar al pago</a>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="logo">Baby Saraí</span>
+      <p>Ropa de bebé nueva y seminueva, escogida con cariño para acompañar los primeros años.</p>
+    </div>
+    <div>
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="categoria.html?cat=ninas">Niñas</a></li>
+        <li><a href="categoria.html?cat=ninos">Niños</a></li>
+        <li><a href="categoria.html?cat=recien-nacido">Recién nacido</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="carrito.html">Mi carrito</a></li>
+        <li><a href="guia-tallas.html">Guía de tallas</a></li>
+        <li><a href="envios-devoluciones.html">Envíos y devoluciones</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="nosotros.html">Sobre nosotros</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Síguenos</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

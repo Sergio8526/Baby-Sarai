@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pago — Baby Saraí</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="logo">Baby Saraí</a>
+    <div class="checkout-steps">
+      <span>Carrito</span><span class="sep">→</span>
+      <span class="step--active">Envío y pago</span><span class="sep">→</span>
+      <span>Confirmación</span>
+    </div>
+    <div class="header-actions">
+      <a href="carrito.html" class="cart-link">
+        Carrito <span class="cart-count" data-cart-count>0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <div class="cart-layout">
+      <div>
+        <form data-checkout-form>
+          <h2 style="font-size:1.3rem; margin-bottom:20px;">Datos de envío</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="nombre">Nombre completo</label>
+              <input id="nombre" type="text" required>
+              <span class="form-error">Este campo es obligatorio.</span>
+            </div>
+            <div class="form-field">
+              <label for="telefono">Teléfono</label>
+              <input id="telefono" type="tel" required>
+              <span class="form-error">Este campo es obligatorio.</span>
+            </div>
+            <div class="form-field">
+              <label for="direccion">Dirección</label>
+              <input id="direccion" type="text" required>
+              <span class="form-error">Este campo es obligatorio.</span>
+            </div>
+            <div class="form-field">
+              <label for="ciudad">Ciudad</label>
+              <input id="ciudad" type="text" required>
+              <span class="form-error">Este campo es obligatorio.</span>
+            </div>
+          </div>
+
+          <h2 style="font-size:1.3rem; margin: 28px 0 20px;">Método de pago</h2>
+          <div class="pay-options">
+            <button type="button" class="pay-option" data-pay-option="tarjeta" aria-pressed="true">Tarjeta de crédito</button>
+            <button type="button" class="pay-option" data-pay-option="pse" aria-pressed="false">PSE</button>
+            <button type="button" class="pay-option" data-pay-option="contraentrega" aria-pressed="false">Contraentrega</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Confirmar pedido</button>
+        </form>
+
+        <div class="confirmation" data-confirmation>
+          <div class="confirmation-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h2 style="font-size:1.5rem; margin-bottom:8px;">¡Pedido confirmado!</h2>
+          <p style="color:var(--color-ink-soft); margin-bottom:4px;">Número de pedido <strong data-order-number></strong></p>
+          <p style="color:var(--color-ink-soft); margin-bottom:24px;">Total pagado: <strong data-order-total></strong></p>
+          <a href="index.html" class="btn btn-outline">Volver al inicio</a>
+        </div>
+      </div>
+
+      <aside class="summary-card" data-order-summary-card>
+        <h3 style="font-size:1.05rem; margin-bottom:16px;">Total a pagar</h3>
+        <p style="font-family:var(--font-display); font-size:1.9rem; color:var(--color-rose-dark);" data-checkout-total>$0</p>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
