@@ -3,155 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baby Saraí - Gestión de productos</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 16px; color: #3a2a2a; }
-    h1 { color: #c4856a; }
-    form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    label { display: flex; flex-direction: column; font-size: 14px; gap: 4px; }
-    input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    .acciones-form { grid-column: span 2; display: flex; gap: 10px; }
-    button { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; background: #c4856a; color: #fff; }
-    button.secundario { background: #999; }
-    button.peligro { background: #d9534f; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
-    th { background: #fff8f5; }
-    #mensaje { margin: 10px 0; font-weight: bold; }
-  </style>
+  <title>Productos | Administración Baby Saraí</title>
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-  <h1>Gestión de productos</h1>
+  <header class="barra">
+    <h1>Baby Saraí · Administración</h1>
+    <nav>
+      <a href="productos.html" class="activo">Productos</a>
+      <a href="categorias.html">Categorías</a>
+    </nav>
+  </header>
 
-  <form id="formProducto">
-    <input type="hidden" id="id">
-    <label>Nombre *
-      <input type="text" id="nombre" required maxlength="100">
-    </label>
-    <label>Precio *
-      <input type="number" id="precio" required min="0" step="0.01">
-    </label>
-    <label>Categoría
-      <input type="text" id="categoria" maxlength="50">
-    </label>
-    <label>Stock
-      <input type="number" id="stock" min="0" value="0">
-    </label>
-    <label style="grid-column: span 2;">Descripción
-      <input type="text" id="descripcion" maxlength="255">
-    </label>
-    <div class="acciones-form">
-      <button type="submit" id="btnGuardar">Guardar producto</button>
-      <button type="button" class="secundario" id="btnCancelar">Cancelar</button>
-    </div>
-  </form>
+  <main>
+    <!-- Formulario para crear o editar un producto.
+         novalidate: la validación la hace el servidor y los errores se muestran abajo. -->
+    <section class="tarjeta">
+      <h2 id="tituloFormulario">Nuevo producto</h2>
+      <form id="formProducto" class="formulario" novalidate>
+        <input type="hidden" id="id">
 
-  <div id="mensaje"></div>
+        <label>Nombre *
+          <input type="text" id="nombre" maxlength="100">
+        </label>
+        <label>Categoría *
+          <select id="categoriaId"></select>
+        </label>
+        <label>Precio (COP) *
+          <input type="number" id="precio" min="0" step="100">
+        </label>
+        <label>Talla
+          <input type="text" id="talla" maxlength="20" placeholder="Ej: 0-3 meses">
+        </label>
+        <label>Estado
+          <select id="estado">
+            <option value="nuevo">Nuevo</option>
+            <option value="usado">Usado</option>
+          </select>
+        </label>
+        <label>Stock
+          <input type="number" id="stock" min="0" step="1" value="0">
+        </label>
+        <label class="completo">Descripción
+          <input type="text" id="descripcion" maxlength="255">
+        </label>
+        <label class="casilla completo">
+          <input type="checkbox" id="activo" checked>
+          Visible en la tienda
+        </label>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Id</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaProductos"></tbody>
-  </table>
+        <div class="acciones">
+          <button type="submit" id="btnGuardar">Guardar producto</button>
+          <button type="button" class="secundario" id="btnCancelar">Cancelar</button>
+        </div>
+      </form>
+      <div id="mensaje" class="mensaje" role="status"></div>
+    </section>
 
-  <script>
-    const API = '/api/productos';
-    const form = document.getElementById('formProducto');
-    const tabla = document.getElementById('tablaProductos');
-    const mensaje = document.getElementById('mensaje');
+    <!-- Listado de productos con filtro por categoría -->
+    <section class="tarjeta">
+      <div class="encabezado-tabla">
+        <h2>Inventario</h2>
+        <select id="filtroCategoria" aria-label="Filtrar por categoría"></select>
+      </div>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th><th>Categoría</th><th>Talla</th><th>Estado</th>
+              <th>Precio</th><th>Stock</th><th>Tienda</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProductos"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-    function mostrarMensaje(texto, esError = false) {
-      mensaje.textContent = texto;
-      mensaje.style.color = esError ? '#d9534f' : '#2e7d32';
-    }
-
-    function limpiarFormulario() {
-      form.reset();
-      document.getElementById('id').value = '';
-      document.getElementById('btnGuardar').textContent = 'Guardar producto';
-    }
-
-    // GET: consulta la lista y la pinta en la tabla
-    async function cargarProductos() {
-      const respuesta = await fetch(API);
-      const productos = await respuesta.json();
-      tabla.innerHTML = '';
-
-      productos.forEach((p) => {
-        const fila = document.createElement('tr');
-        [p.id, p.nombre, p.categoria, p.precio, p.stock].forEach((valor) => {
-          const celda = document.createElement('td');
-          celda.textContent = valor ?? '';
-          fila.appendChild(celda);
-        });
-
-        const celdaAcciones = document.createElement('td');
-        const btnEditar = document.createElement('button');
-        btnEditar.textContent = 'Editar';
-        btnEditar.onclick = () => editarProducto(p);
-
-        const btnEliminar = document.createElement('button');
-        btnEliminar.textContent = 'Eliminar';
-        btnEliminar.className = 'peligro';
-        btnEliminar.onclick = () => eliminarProducto(p.id);
-
-        celdaAcciones.append(btnEditar, ' ', btnEliminar);
-        fila.appendChild(celdaAcciones);
-        tabla.appendChild(fila);
-      });
-    }
-
-    // Llena el formulario con los datos del producto a editar
-    function editarProducto(p) {
-      document.getElementById('id').value = p.id;
-      document.getElementById('nombre').value = p.nombre;
-      document.getElementById('precio').value = p.precio;
-      document.getElementById('categoria').value = p.categoria ?? '';
-      document.getElementById('stock').value = p.stock;
-      document.getElementById('descripcion').value = p.descripcion ?? '';
-      document.getElementById('btnGuardar').textContent = 'Actualizar producto';
-    }
-
-    // POST (crear) o PUT (actualizar) según si hay id
-    form.addEventListener('submit', async (evento) => {
-      evento.preventDefault();
-      const id = document.getElementById('id').value;
-      const producto = {
-        nombre: document.getElementById('nombre').value.trim(),
-        precio: Number(document.getElementById('precio').value),
-        categoria: document.getElementById('categoria').value.trim(),
-        stock: Number(document.getElementById('stock').value),
-        descripcion: document.getElementById('descripcion').value.trim(),
-      };
-
-      const respuesta = await fetch(id ? `${API}/${id}` : API, {
-        method: id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(producto),
-      });
-      const datos = await respuesta.json();
-      mostrarMensaje(datos.mensaje, !respuesta.ok);
-
-      if (respuesta.ok) {
-        limpiarFormulario();
-        cargarProductos();
-      }
-    });
-
-    // DELETE: elimina previa confirmación
-    async function eliminarProducto(id) {
-      if (!confirm(`¿Eliminar el producto ${id}?`)) return;
-      const respuesta = await fetch(`${API}/${id}`, { method: 'DELETE' });
-      const datos = await respuesta.json();
-      mostrarMensaje(datos.mensaje, !respuesta.ok);
-      cargarProductos();
-    }
-
-    document.getElementById('btnCancelar').onclick = limpiarFormulario;
-    cargarProductos();
-  </script>
+  <script type="module" src="js/productos.js"></script>
 </body>
 </html>

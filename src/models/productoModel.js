@@ -1,62 +1,106 @@
+/**
+ * Modelo de productos.
+ * Contiene las consultas SQL sobre la tabla productos,
+ * unida con categorias para devolver el nombre de la categoría.
+ */
 const pool = require('../config/db.js');
 
+// Columnas que devuelve cada consulta, traducidas a camelCase
+const COLUMNAS = `
+  p.id,
+  p.nombre,
+  p.descripcion,
+  p.categoria_id AS categoriaId,
+  c.nombre AS categoriaNombre,
+  p.talla,
+  p.estado,
+  p.precio,
+  p.stock,
+  p.activo,
+  p.fecha_creacion AS fechaCreacion,
+  p.fecha_actualizacion AS fechaActualizacion
+`;
+
+const FROM_JOIN = 'FROM productos p INNER JOIN categorias c ON c.id = p.categoria_id';
+
 /**
- * Inserta un nuevo producto en la base de datos.
- * @param {Object} producto - Datos del producto a crear.
- * @param {string} producto.nombre - Nombre del producto.
- * @param {string} producto.descripcion - Descripción del producto.
- * @param {number} producto.precio - Precio unitario.
- * @param {string} producto.categoria - Categoría del producto.
- * @param {number} producto.stock - Cantidad disponible en inventario.
- * @returns {Promise<number>} El id del producto recién creado.
+ * Lista productos con filtros opcionales.
+ * @param {Object} [filtros]
+ * @param {number} [filtros.categoriaId] - Solo productos de esa categoría.
+ * @param {boolean} [filtros.soloActivos=false] - Solo productos visibles en la tienda.
+ * @returns {Promise<Array>}
+ */
+async function listarProductos({ categoriaId, soloActivos = false } = {}) {
+  const condiciones = [];
+  const valores = [];
+
+  if (categoriaId) {
+    condiciones.push('p.categoria_id = ?');
+    valores.push(categoriaId);
+  }
+  if (soloActivos) {
+    condiciones.push('p.activo = 1');
+  }
+
+  const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+  const [filas] = await pool.query(
+    `SELECT ${COLUMNAS} ${FROM_JOIN} ${where} ORDER BY p.fecha_creacion DESC`,
+    valores
+  );
+  return filas;
+}
+
+/**
+ * Consulta un producto por id.
+ * @param {number} id
+ * @returns {Promise<Object|null>}
+ */
+async function obtenerProductoPorId(id) {
+  const [filas] = await pool.query(
+    `SELECT ${COLUMNAS} ${FROM_JOIN} WHERE p.id = ?`,
+    [id]
+  );
+  return filas[0] || null;
+}
+
+/**
+ * Crea un producto.
+ * @param {Object} producto - Datos en camelCase.
+ * @returns {Promise<number>} Id del producto creado.
  */
 async function crearProducto(producto) {
-  const { nombre, descripcion, precio, categoria, stock } = producto;
+  const { nombre, descripcion, categoriaId, talla, estado, precio, stock, activo } = producto;
   const [resultado] = await pool.query(
-    'INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES (?, ?, ?, ?, ?)',
-    [nombre, descripcion, precio, categoria, stock]
+    `INSERT INTO productos
+      (nombre, descripcion, categoria_id, talla, estado, precio, stock, activo)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [nombre, descripcion, categoriaId, talla, estado, precio, stock, activo ? 1 : 0]
   );
   return resultado.insertId;
 }
 
 /**
- * Consulta todos los productos registrados.
- * @returns {Promise<Array>} Lista de productos.
- */
-async function listarProductos() {
-  const [filas] = await pool.query('SELECT * FROM productos ORDER BY fecha_creacion DESC');
-  return filas;
-}
-
-/**
- * Consulta un producto por su id.
- * @param {number} id - Id del producto.
- * @returns {Promise<Object|null>} El producto encontrado, o null si no existe.
- */
-async function obtenerProductoPorId(id) {
-  const [filas] = await pool.query('SELECT * FROM productos WHERE id = ?', [id]);
-  return filas[0] || null;
-}
-
-/**
- * Actualiza los datos de un producto existente.
- * @param {number} id - Id del producto a actualizar.
- * @param {Object} producto - Nuevos datos del producto.
- * @returns {Promise<boolean>} true si se actualizó algún registro.
+ * Actualiza un producto existente.
+ * @param {number} id
+ * @param {Object} producto - Datos en camelCase.
+ * @returns {Promise<boolean>} true si se actualizó.
  */
 async function actualizarProducto(id, producto) {
-  const { nombre, descripcion, precio, categoria, stock } = producto;
+  const { nombre, descripcion, categoriaId, talla, estado, precio, stock, activo } = producto;
   const [resultado] = await pool.query(
-    'UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, categoria = ?, stock = ? WHERE id = ?',
-    [nombre, descripcion, precio, categoria, stock, id]
+    `UPDATE productos
+     SET nombre = ?, descripcion = ?, categoria_id = ?, talla = ?,
+         estado = ?, precio = ?, stock = ?, activo = ?
+     WHERE id = ?`,
+    [nombre, descripcion, categoriaId, talla, estado, precio, stock, activo ? 1 : 0, id]
   );
   return resultado.affectedRows > 0;
 }
 
 /**
- * Elimina un producto por su id.
- * @param {number} id - Id del producto a eliminar.
- * @returns {Promise<boolean>} true si se eliminó algún registro.
+ * Elimina un producto.
+ * @param {number} id
+ * @returns {Promise<boolean>} true si se eliminó.
  */
 async function eliminarProducto(id) {
   const [resultado] = await pool.query('DELETE FROM productos WHERE id = ?', [id]);
@@ -64,9 +108,9 @@ async function eliminarProducto(id) {
 }
 
 module.exports = {
-  crearProducto,
   listarProductos,
   obtenerProductoPorId,
+  crearProducto,
   actualizarProducto,
   eliminarProducto,
 };

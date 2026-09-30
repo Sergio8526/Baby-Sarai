@@ -1,10 +1,17 @@
+/**
+ * Configuración de la conexión a MySQL.
+ * Los datos de acceso se leen del archivo .env para no exponerlos en el código.
+ */
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'Gladys8526',
-  database: 'baby_sarai',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
 });
 
 module.exports = pool;

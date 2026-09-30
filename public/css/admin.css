@@ -1,0 +1,109 @@
+/* =====================================================
+   Baby Saraí - Estilos del panel de administración
+   ===================================================== */
+
+:root {
+  --primario: #c4856a;
+  --fondo-suave: #fff8f5;
+  --texto: #3a2a2a;
+  --borde: #e6d9d3;
+  --error: #c0392b;
+  --exito: #2e7d32;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: var(--texto);
+  background: #fff;
+}
+
+/* Barra superior */
+.barra {
+  background: var(--primario);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.barra h1 { font-size: 20px; margin: 0; }
+.barra nav a { color: #fff; text-decoration: none; margin-right: 18px; opacity: 0.8; }
+.barra nav a.activo { opacity: 1; font-weight: bold; border-bottom: 2px solid #fff; }
+
+main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+
+/* Tarjetas */
+.tarjeta {
+  background: var(--fondo-suave);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.tarjeta h2 { margin-top: 0; font-size: 18px; }
+
+/* Formularios */
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.formulario label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.formulario .completo { grid-column: 1 / -1; }
+.formulario .casilla { flex-direction: row; align-items: center; gap: 8px; }
+
+input, select {
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.acciones { grid-column: 1 / -1; display: flex; gap: 10px; }
+
+/* Botones */
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  background: var(--primario);
+  color: #fff;
+}
+button:hover { opacity: 0.9; }
+button.secundario { background: #999; }
+button.peligro { background: var(--error); }
+button.pequeno { padding: 5px 10px; font-size: 13px; }
+
+/* Mensajes */
+.mensaje { margin-top: 12px; font-size: 14px; }
+.mensaje.exito { color: var(--exito); }
+.mensaje.error { color: var(--error); }
+.mensaje ul { margin: 4px 0 0; padding-left: 20px; }
+
+/* Tablas */
+.encabezado-tabla {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.encabezado-tabla h2 { margin: 0; }
+.tabla-contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { border-bottom: 1px solid var(--borde); padding: 10px 8px; text-align: left; font-size: 14px; }
+th { background: var(--fondo-suave); }
+.vacio { text-align: center; color: #888; padding: 20px; }
+
+/* Etiquetas de estado */
+.etiqueta { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 12px; }
+.etiqueta.si { background: #e3f2e5; color: var(--exito); }
+.etiqueta.no { background: #f5e1df; color: var(--error); }

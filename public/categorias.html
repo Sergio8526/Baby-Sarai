@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorías | Administración Baby Saraí</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <header class="barra">
+    <h1>Baby Saraí · Administración</h1>
+    <nav>
+      <a href="productos.html">Productos</a>
+      <a href="categorias.html" class="activo">Categorías</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Formulario para crear o editar una categoría -->
+    <section class="tarjeta">
+      <h2 id="tituloFormulario">Nueva categoría</h2>
+      <form id="formCategoria" class="formulario" novalidate>
+        <input type="hidden" id="id">
+
+        <label>Nombre *
+          <input type="text" id="nombre" maxlength="60">
+        </label>
+        <label>Descripción
+          <input type="text" id="descripcion" maxlength="255">
+        </label>
+        <label class="casilla completo">
+          <input type="checkbox" id="activo" checked>
+          Categoría activa
+        </label>
+
+        <div class="acciones">
+          <button type="submit" id="btnGuardar">Guardar categoría</button>
+          <button type="button" class="secundario" id="btnCancelar">Cancelar</button>
+        </div>
+      </form>
+      <div id="mensaje" class="mensaje" role="status"></div>
+    </section>
+
+    <!-- Listado de categorías -->
+    <section class="tarjeta">
+      <div class="encabezado-tabla">
+        <h2>Categorías</h2>
+      </div>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr><th>Nombre</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tablaCategorias"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/categorias.js"></script>
+</body>
+</html>
