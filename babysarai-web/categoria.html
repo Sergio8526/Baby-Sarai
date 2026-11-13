@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Niñas — Baby Saraí</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -49,9 +50,15 @@
 </div>
 
 <main class="section section--tight">
+  <div class="wrap">
+    <div class="cabecera-catalogo">
+      <h1 data-category-heading>Niñas</h1>
+      <p class="results-summary" data-results-summary>productos encontrados</p>
+    </div>
+  </div>
   <div class="wrap category-layout">
-    <aside class="filters">
-      <h3>Filtrar por</h3>
+    <aside class="filters" aria-label="Filtros">
+      <h2 class="filters-titulo">Filtrar por</h2>
       <fieldset class="filter-group">
         <legend>Talla</legend>
         <label class="filter-option"><input type="checkbox" data-filter="talla" value="0-3"> 0–3 meses</label>
@@ -63,16 +70,15 @@
         <label class="filter-option"><input type="checkbox" data-filter="estado" value="nuevo"> Nuevo</label>
         <label class="filter-option"><input type="checkbox" data-filter="estado" value="seminuevo"> Seminuevo</label>
       </fieldset>
+      <a href="guia-tallas.html" class="filters-ayuda">¿No sabes qué talla? Mira la guía</a>
     </aside>
 
     <div>
-      <h2 style="font-size:1.6rem; margin-bottom:4px;" data-category-heading>Niñas</h2>
-      <p class="results-summary" data-results-summary>productos encontrados</p>
-
-      <div class="product-grid" data-product-grid></div>
+      <div class="product-grid product-grid--3" data-product-grid></div>
 
       <div class="empty-state" data-empty-state>
-        No encontramos productos con esos filtros o esa búsqueda. Prueba quitando alguno o usa otro término.
+        <div class="vacio-arte" data-prenda="escarpines" data-color="#E3E0EE" aria-hidden="true"></div>
+        <p>No encontramos productos con esos filtros o esa búsqueda. Prueba quitando alguno o usa otro término.</p>
       </div>
     </div>
   </div>
@@ -118,6 +124,8 @@
   <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
 </footer>
 
+<script src="js/prendas.js"></script>
 <script src="js/main.js"></script>
+<script src="js/animaciones.js"></script>
 </body>
 </html>

@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Baby Saraí — Ropa de bebé nueva y seminueva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -45,46 +46,83 @@
 </header>
 
 <main>
-  <section class="hero">
-    <div class="hero-blob hero-blob--1"></div>
-    <div class="hero-blob hero-blob--2"></div>
-    <div class="wrap">
-      <p class="hero-eyebrow">Nueva colección</p>
-      <h1>Ropa suave y segura para los primeros años</h1>
-      <p>Prendas nuevas y seminuevas, seleccionadas con cariño — cómodas para tu bebé y amables con el bolsillo.</p>
-      <a href="categoria.html?cat=ninas" class="btn btn-primary">Ver colección</a>
+  <!-- Portada: el tendedero -->
+  <section class="portada">
+    <div class="wrap portada-grid">
+      <div class="portada-texto">
+        <h1 class="portada-titulo">
+          <span class="linea"><span>Ropa <em>suave</em></span></span>
+          <span class="linea"><span>y segura para los</span></span>
+          <span class="linea"><span>primeros años</span></span>
+        </h1>
+        <p class="portada-bajada">Prendas nuevas y seminuevas, escogidas una por una: cómodas para tu bebé y amables con el bolsillo.</p>
+        <div class="portada-acciones">
+          <a href="categoria.html?cat=recien-nacido" class="btn btn-primary">Ver colección</a>
+          <a href="#tallas" class="btn btn-quieto">¿Qué talla necesita?</a>
+        </div>
+      </div>
+
+      <div class="tendedero" data-tendedero aria-hidden="true">
+        <svg class="tendedero-cuerda" viewBox="0 0 600 300" preserveAspectRatio="none">
+          <path d="M-10 30 Q 300 150 610 30" pathLength="1"/>
+        </svg>
+        <div class="colgada" style="--x:12%;--y:17.6%;--i:0" data-prenda="body" data-color="#F1CFD6"><span class="gancho"></span><span class="gancho"></span></div>
+        <div class="colgada" style="--x:36%;--y:28.1%;--i:1" data-prenda="vestido" data-color="#F3D6C0"><span class="gancho"></span><span class="gancho"></span></div>
+        <div class="colgada colgada--etiqueta" style="--x:50%;--y:30%;--i:2">
+          <span class="etiqueta-colgante">0 a 12 meses</span>
+        </div>
+        <div class="colgada" style="--x:64%;--y:28.1%;--i:3" data-prenda="enterizo" data-color="#C9DCE3"><span class="gancho"></span><span class="gancho"></span></div>
+        <div class="colgada" style="--x:88%;--y:17.6%;--i:4" data-prenda="overol" data-color="#DCE8DC"><span class="gancho"></span><span class="gancho"></span></div>
+      </div>
     </div>
   </section>
 
+  <!-- Promesas de la tienda (datos de Envíos y devoluciones) -->
+  <section class="promesas" aria-label="Cómo compras en Baby Saraí">
+    <ul class="wrap promesas-lista">
+      <li><strong>Despacho en 1 a 2 días</strong><span>Te enviamos la guía por correo</span></li>
+      <li><strong>Envío fijo de $8.000</strong><span>A cualquier ciudad de Colombia</span></li>
+      <li><strong>Cambios hasta 15 días</strong><span>Prendas nuevas con etiqueta</span></li>
+    </ul>
+  </section>
+
+  <!-- Categorías -->
   <section class="section">
     <div class="wrap">
       <div class="section-heading">
         <h2>Compra por categoría</h2>
       </div>
-      <div class="cat-grid">
-        <a href="categoria.html?cat=ninas" class="cat-card cat-card--ninas">
-          <div><h3>Niñas</h3><span>Vestidos, bodies y conjuntos</span></div>
+      <div class="cat-mosaico">
+        <a href="categoria.html?cat=recien-nacido" class="cat-tile cat-tile--grande" style="--fondo-cat:#F3D6C0" data-revelar>
+          <div class="cat-tile-arte" data-prenda="body" data-color="#FBEADC"></div>
+          <div class="cat-tile-texto"><h3>Recién nacido</h3><span>Ajuares y primera muda</span></div>
+          <span class="cat-flecha" aria-hidden="true">→</span>
         </a>
-        <a href="categoria.html?cat=ninos" class="cat-card cat-card--ninos">
-          <div><h3>Niños</h3><span>Enterizos, pijamas y chaquetas</span></div>
+        <a href="categoria.html?cat=ninas" class="cat-tile" style="--fondo-cat:#F1CFD6" data-revelar>
+          <div class="cat-tile-arte" data-prenda="vestido" data-color="#FBE6EA"></div>
+          <div class="cat-tile-texto"><h3>Niñas</h3><span>Vestidos, bodies y conjuntos</span></div>
+          <span class="cat-flecha" aria-hidden="true">→</span>
         </a>
-        <a href="categoria.html?cat=recien-nacido" class="cat-card cat-card--recien">
-          <div><h3>Recién nacido</h3><span>Ajuares y primera muda</span></div>
+        <a href="categoria.html?cat=ninos" class="cat-tile" style="--fondo-cat:#C9DCE3" data-revelar>
+          <div class="cat-tile-arte" data-prenda="overol" data-color="#E6F0F3"></div>
+          <div class="cat-tile-texto"><h3>Niños</h3><span>Enterizos, pijamas y chaquetas</span></div>
+          <span class="cat-flecha" aria-hidden="true">→</span>
         </a>
       </div>
     </div>
   </section>
 
+  <!-- Destacados -->
   <section class="section section--tight">
     <div class="wrap">
       <div class="section-heading">
         <h2>Productos destacados</h2>
         <a href="categoria.html?cat=ninas" class="eyebrow-link">Ver todo</a>
       </div>
-      <div class="product-grid">
-        <a href="producto.html?id=1" class="product-link">
+      <div class="product-grid product-grid--4">
+        <a href="producto.html?id=1" class="product-link" data-revelar>
           <article class="product-card">
-            <div class="product-thumb" style="background-color:#F1CFD6">
+            <div class="product-thumb" style="--fondo-prenda:#F1CFD6" data-prenda="body" data-color="#F1CFD6">
               <button class="fav-toggle" data-fav-toggle="1" aria-pressed="false" aria-label="Guardar en favoritos" onclick="event.preventDefault(); event.stopPropagation(); handleFavClick(this)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg></button><span class="product-badge">Nuevo</span></div>
             <div class="product-info">
               <h3>Body manga larga</h3>
@@ -92,19 +130,19 @@
             </div>
           </article>
         </a>
-        <a href="producto.html?id=2" class="product-link">
+        <a href="producto.html?id=2" class="product-link" data-revelar>
           <article class="product-card">
-            <div class="product-thumb" style="background-color:#C9DCE3">
-              <button class="fav-toggle" data-fav-toggle="2" aria-pressed="false" aria-label="Guardar en favoritos" onclick="event.preventDefault(); event.stopPropagation(); handleFavClick(this)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg></button><span class="product-badge">Seminuevo</span></div>
+            <div class="product-thumb" style="--fondo-prenda:#C9DCE3" data-prenda="conjunto" data-color="#C9DCE3">
+              <button class="fav-toggle" data-fav-toggle="2" aria-pressed="false" aria-label="Guardar en favoritos" onclick="event.preventDefault(); event.stopPropagation(); handleFavClick(this)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg></button><span class="product-badge product-badge--semi">Seminuevo</span></div>
             <div class="product-info">
               <h3>Conjunto de algodón</h3>
               <p class="product-price">$45.000</p>
             </div>
           </article>
         </a>
-        <a href="producto.html?id=3" class="product-link">
+        <a href="producto.html?id=3" class="product-link" data-revelar>
           <article class="product-card">
-            <div class="product-thumb" style="background-color:#F3D6C0">
+            <div class="product-thumb" style="--fondo-prenda:#F3D6C0" data-prenda="enterizo" data-color="#F3D6C0">
               <button class="fav-toggle" data-fav-toggle="3" aria-pressed="false" aria-label="Guardar en favoritos" onclick="event.preventDefault(); event.stopPropagation(); handleFavClick(this)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg></button><span class="product-badge">Nuevo</span></div>
             <div class="product-info">
               <h3>Pijama orgánica</h3>
@@ -112,9 +150,9 @@
             </div>
           </article>
         </a>
-        <a href="producto.html?id=11" class="product-link">
+        <a href="producto.html?id=11" class="product-link" data-revelar>
           <article class="product-card">
-            <div class="product-thumb" style="background-color:#E3E0EE">
+            <div class="product-thumb" style="--fondo-prenda:#E3E0EE" data-prenda="gorro" data-color="#E3E0EE">
               <button class="fav-toggle" data-fav-toggle="11" aria-pressed="false" aria-label="Guardar en favoritos" onclick="event.preventDefault(); event.stopPropagation(); handleFavClick(this)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2 4.5 5.5 4c2-.3 3.8.7 6.5 3.3C14.7 4.7 16.5 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.3 12 21 12 21z"/></svg></button><span class="product-badge">Nuevo</span></div>
             <div class="product-info">
               <h3>Gorro + escarpines</h3>
@@ -122,6 +160,55 @@
             </div>
           </article>
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nuevo y seminuevo -->
+  <section class="section dos-vidas">
+    <div class="wrap dos-vidas-grid">
+      <div class="dos-vidas-texto">
+        <h2>Cada prenda trae su <em>etiqueta</em> clara</h2>
+        <p>Los bebés crecen rápido y mucha ropa se usa apenas unas semanas. Por eso vendemos prendas nuevas y también seminuevas en excelente estado, siempre identificadas.</p>
+        <a href="nosotros.html" class="eyebrow-link">Conoce nuestra historia</a>
+      </div>
+      <div class="dos-vidas-etiquetas">
+        <article class="tag-grande" data-revelar>
+          <span class="tag-ojal" aria-hidden="true"></span>
+          <h3>Nuevo</h3>
+          <p>Con etiqueta original, de proveedores locales.</p>
+          <p class="tag-dato">Cambios hasta 15 días</p>
+        </article>
+        <article class="tag-grande tag-grande--semi" data-revelar>
+          <span class="tag-ojal" aria-hidden="true"></span>
+          <h3>Seminuevo</h3>
+          <p>Revisamos tela, costuras y cierres antes de publicarla.</p>
+          <p class="tag-dato">Cambios hasta 8 días</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Buscador de tallas -->
+  <section class="section" id="tallas">
+    <div class="wrap">
+      <div class="tallas" data-tallas>
+        <div class="tallas-control">
+          <h2>¿Qué talla necesita tu bebé?</h2>
+          <label class="tallas-etiqueta" for="edadBebe">Edad del bebé: <output data-edad-texto>2 meses</output></label>
+          <input type="range" id="edadBebe" min="0" max="12" step="1" value="2" data-edad>
+          <div class="tallas-escala" aria-hidden="true"><span>0</span><span>3</span><span>6</span><span>9</span><span>12 meses</span></div>
+          <p class="tallas-nota">Si está entre dos tallas, elige la más grande: el algodón encoge un poco en los primeros lavados.</p>
+          <a href="guia-tallas.html" class="eyebrow-link">Ver la guía completa</a>
+        </div>
+        <div class="tallas-resultado" aria-live="polite">
+          <div class="tallas-prenda" data-prenda="body" data-color="#C9DCE3" data-tallas-prenda></div>
+          <p class="tallas-talla" data-talla>0–3M</p>
+          <dl class="tallas-datos">
+            <div><dt>Peso</dt><dd data-peso>3 a 6 kg</dd></div>
+            <div><dt>Estatura</dt><dd data-estatura>50 a 60 cm</dd></div>
+          </dl>
+        </div>
       </div>
     </div>
   </section>
@@ -167,6 +254,8 @@
   <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
 </footer>
 
+<script src="js/prendas.js"></script>
 <script src="js/main.js"></script>
+<script src="js/animaciones.js"></script>
 </body>
 </html>

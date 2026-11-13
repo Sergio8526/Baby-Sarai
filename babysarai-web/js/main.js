@@ -30,6 +30,33 @@ const CATEGORY_LABELS = {
   'ofertas': 'Ofertas',
 };
 
+
+/* ---------- Ilustraciones (definidas en prendas.js) ---------- */
+function illustrationHtml(productId, color) {
+  if (typeof prendaSvg !== 'function') return '';
+  const tipo = (typeof PRENDA_POR_PRODUCTO !== 'undefined' && PRENDA_POR_PRODUCTO[productId]) || 'body';
+  return prendaSvg(tipo, color);
+}
+
+/** Tarjeta de producto usada en categoría y favoritos. */
+function productCardHtml(p, orden = 0) {
+  const semi = p.estado !== 'nuevo';
+  return `
+    <a href="producto.html?id=${p.id}" class="product-link aparece" style="--orden:${orden}">
+      <article class="product-card">
+        <div class="product-thumb" style="--fondo-prenda:${p.color}">
+          ${illustrationHtml(p.id, p.color)}
+          <span class="product-badge${semi ? ' product-badge--semi' : ''}">${semi ? 'Seminuevo' : 'Nuevo'}</span>
+          ${favToggleHtml(p.id)}
+        </div>
+        <div class="product-info">
+          <h3>${p.name}</h3>
+          <p class="product-price">${formatCOP(p.price)}</p>
+        </div>
+      </article>
+    </a>`;
+}
+
 /* ---------- Utilidades de carrito (compartidas por todas las páginas) ---------- */
 function getCart() {
   try {
@@ -74,7 +101,14 @@ function formatCOP(value) {
 function updateCartBadge() {
   const count = getCart().reduce((sum, i) => sum + i.qty, 0);
   document.querySelectorAll('[data-cart-count]').forEach((el) => {
+    const previous = Number(el.textContent) || 0;
     el.textContent = count;
+    if (count > previous && el.dataset.listo) {
+      el.classList.remove('rebota');
+      void el.offsetWidth;
+      el.classList.add('rebota');
+    }
+    el.dataset.listo = '1';
   });
 }
 
@@ -208,20 +242,7 @@ function renderCategoryPage() {
     return matchesCat && matchesSize && matchesState && matchesSearch;
   });
 
-  grid.innerHTML = results.map((p) => `
-    <a href="producto.html?id=${p.id}" class="product-link">
-      <article class="product-card">
-        <div class="product-thumb" style="background-color:${p.color}">
-          <span class="product-badge">${p.estado === 'nuevo' ? 'Nuevo' : 'Seminuevo'}</span>
-          ${favToggleHtml(p.id)}
-        </div>
-        <div class="product-info">
-          <h3>${p.name}</h3>
-          <p class="product-price">${formatCOP(p.price)}</p>
-        </div>
-      </article>
-    </a>
-  `).join('');
+  grid.innerHTML = results.map((p, i) => productCardHtml(p, i)).join('');
 
   const heading = document.querySelector('[data-category-heading]');
   const crumb = document.querySelector('[data-category-crumb]');
@@ -280,8 +301,18 @@ function renderProductPage() {
 
   const image = document.querySelector('[data-product-image]');
   if (image) {
-    image.style.backgroundColor = product.color;
-    image.innerHTML = favToggleHtml(product.id);
+    image.style.setProperty('--fondo-prenda', product.color);
+    image.innerHTML = `
+      <span class="detalle-cuerda" aria-hidden="true"></span>
+      <div class="detalle-colgada"><span class="gancho"></span><span class="gancho"></span>${illustrationHtml(product.id, product.color)}</div>
+      ${favToggleHtml(product.id)}`;
+  }
+
+  // Productos relacionados: misma categoría, sin repetir el actual
+  const related = document.querySelector('[data-related-grid]');
+  if (related) {
+    related.innerHTML = PRODUCTS.filter((p) => p.cat === product.cat && p.id !== product.id)
+      .slice(0, 4).map((p, i) => productCardHtml(p, i)).join('');
   }
 
   const addBtn = document.querySelector('[data-add-to-cart]');
@@ -327,6 +358,13 @@ function initProductDetail() {
       confirm.classList.add('is-visible');
       confirm.textContent = `Agregado: ${qty} × ${name} (talla ${selectedSize})`;
     }
+    // La prenda da un saltito hacia el carrito
+    const colgada = document.querySelector('.detalle-colgada');
+    if (colgada) {
+      colgada.classList.remove('salta');
+      void colgada.offsetWidth;
+      colgada.classList.add('salta');
+    }
   });
 }
 
@@ -348,7 +386,7 @@ function renderCartPage() {
       const row = document.createElement('div');
       row.className = 'cart-item';
       row.innerHTML = `
-        <div class="cart-item-thumb" style="background-color:${swatch(index)}"></div>
+        <div class="cart-item-thumb" style="--fondo-prenda:${productColor(item.id, index)}">${illustrationHtml(item.id, productColor(item.id, index))}</div>
         <div>
           <p class="cart-item-name">${item.name}</p>
           <p class="cart-item-meta">Talla ${item.size} · Cantidad: ${item.qty}</p>
@@ -380,6 +418,12 @@ function renderCartPage() {
   });
 }
 
+/** Color del producto en el catálogo; si no existe, uno de la paleta. */
+function productColor(id, index) {
+  const product = PRODUCTS.find((p) => p.id === id);
+  return product ? product.color : swatch(index);
+}
+
 function swatch(index) {
   const colors = ['#F1CFD6', '#C9DCE3', '#F3D6C0', '#E3E0EE', '#DCE8DC'];
   return colors[index % colors.length];
@@ -390,8 +434,21 @@ function initCheckout() {
   const form = document.querySelector('[data-checkout-form]');
   if (!form) return;
   const cart = getCart();
-  const { total } = cartTotals(cart);
+  const { subtotal, shipping, total } = cartTotals(cart);
   setText('[data-checkout-total]', formatCOP(total));
+  setText('[data-checkout-subtotal]', formatCOP(subtotal));
+  setText('[data-checkout-shipping]', cart.length ? formatCOP(shipping) : '—');
+  const itemsList = document.querySelector('[data-checkout-items]');
+  if (itemsList) {
+    itemsList.innerHTML = cart.length
+      ? cart.map((item, index) => `
+        <li>
+          <span class="mini-prenda" style="--fondo-prenda:${productColor(item.id, index)}">${illustrationHtml(item.id, productColor(item.id, index))}</span>
+          <span class="mini-nombre">${item.name}<small>Talla ${item.size} · ${item.qty} ud.</small></span>
+          <span class="mini-precio">${formatCOP(item.price * item.qty)}</span>
+        </li>`).join('')
+      : '<li class="mini-vacio">Tu carrito está vacío.</li>';
+  }
 
   const payOptions = document.querySelectorAll('[data-pay-option]');
   let selectedPay = payOptions.length ? payOptions[0].dataset.payOption : null;
@@ -419,6 +476,7 @@ function initCheckout() {
 
     form.style.display = 'none';
     document.querySelector('[data-order-summary-card]')?.style.setProperty('display', 'none');
+    document.querySelectorAll('[data-paso]').forEach((p) => p.classList.add('hecho'));
     const confirmation = document.querySelector('[data-confirmation]');
     if (confirmation) {
       confirmation.classList.add('is-visible');
@@ -474,20 +532,7 @@ function renderFavoritesPage() {
   grid.style.display = '';
   if (empty) empty.style.display = 'none';
 
-  grid.innerHTML = items.map((p) => `
-    <a href="producto.html?id=${p.id}" class="product-link">
-      <article class="product-card">
-        <div class="product-thumb" style="background-color:${p.color}">
-          <span class="product-badge">${p.estado === 'nuevo' ? 'Nuevo' : 'Seminuevo'}</span>
-          ${favToggleHtml(p.id)}
-        </div>
-        <div class="product-info">
-          <h3>${p.name}</h3>
-          <p class="product-price">${formatCOP(p.price)}</p>
-        </div>
-      </article>
-    </a>
-  `).join('');
+  grid.innerHTML = items.map((p, i) => productCardHtml(p, i)).join('');
 }
 
 /* ---------- Init ---------- */

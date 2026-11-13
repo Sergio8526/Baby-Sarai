@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Envíos y devoluciones — Baby Saraí</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -37,15 +38,26 @@
   </div>
 </header>
 
-<section class="page-intro">
-  <div class="wrap">
-    <h1>Envíos y devoluciones</h1>
-    <p>Todo lo que necesitas saber sobre tiempos de entrega, costos de envío y nuestra política de cambios.</p>
+<section class="intro-pagina">
+  <div class="wrap intro-grid">
+    <div>
+    <p class="breadcrumb"><a href="index.html">Inicio</a> / <span>Envíos y devoluciones</span></p>
+      <h1>Envíos y devoluciones</h1>
+      <p>Todo lo que necesitas saber sobre tiempos de entrega, costos de envío y nuestra política de cambios.</p>
+    </div>
+    <div class="intro-arte" data-prenda="caja" data-color="#C9DCE3" aria-hidden="true"></div>
   </div>
 </section>
+<main class="section section--tight">
+  <div class="wrap">
+    <ol class="ruta-pedido" aria-label="Recorrido de tu pedido">
+      <li data-revelar><span class="ruta-punto">1</span><strong>Haces tu pedido</strong><span>Recibes el número de pedido al confirmar.</span></li>
+      <li data-revelar><span class="ruta-punto">2</span><strong>Lo despachamos</strong><span>En 1 a 2 días hábiles, con número de guía por correo.</span></li>
+      <li data-revelar><span class="ruta-punto">3</span><strong>Llega a tu casa</strong><span>Entre 2 y 4 días hábiles más, según la ciudad.</span></li>
+    </ol>
+  </div>
 
-<main class="section wrap">
-  <div class="prose">
+  <div class="wrap prose">
     <h2>Preguntas frecuentes</h2>
 
     <details class="faq-item" open>
@@ -126,6 +138,8 @@
   <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
 </footer>
 
+<script src="js/prendas.js"></script>
 <script src="js/main.js"></script>
+<script src="js/animaciones.js"></script>
 </body>
 </html>
