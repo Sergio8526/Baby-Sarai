@@ -7,15 +7,30 @@
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+  <!-- Barra lateral de navegación -->
   <header class="barra">
-    <h1>Baby Saraí · Administración</h1>
-    <nav>
-      <a href="productos.html">Productos</a>
-      <a href="categorias.html" class="activo">Categorías</a>
+    <a href="productos.html" class="marca">
+      <span class="marca-nombre">Baby Saraí</span>
+      <span class="marca-detalle">Panel de administración</span>
+    </a>
+    <nav aria-label="Secciones del panel">
+      <a href="productos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 5.5v4L6 9v12h12V9l2 .5v-4L16 3c-.6 1.7-2.1 2.8-4 2.8S8.6 4.7 8 3Z"/></svg>
+        Productos
+      </a>
+      <a href="categorias.html" class="activo" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.4 1.4 0 0 1 0 2l-6.7 6.7a1.4 1.4 0 0 1-2 0l-8.3-8.3Z"/><circle cx="8.2" cy="8.2" r="1.4"/></svg>
+        Categorías
+      </a>
     </nav>
   </header>
 
   <main>
+    <div class="cabecera-pagina">
+      <h1>Categorías</h1>
+      <p>Organiza el catálogo. Una categoría con productos no se puede eliminar; desactívala si ya no la usas.</p>
+    </div>
+
     <!-- Formulario para crear o editar una categoría -->
     <section class="tarjeta">
       <h2 id="tituloFormulario">Nueva categoría</h2>
