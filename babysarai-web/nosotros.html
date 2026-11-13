@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sobre nosotros — Baby Saraí</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..650;1,9..144,400..500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -37,36 +38,49 @@
   </div>
 </header>
 
-<section class="page-intro">
-  <div class="wrap">
-    <h1>Sobre Baby Saraí</h1>
-    <p>Ropa de bebé nueva y seminueva, escogida con cariño para acompañar los primeros años — cómoda para el bebé, amable con el bolsillo y con el planeta.</p>
+<section class="intro-pagina">
+  <div class="wrap intro-grid">
+    <div>
+    <p class="breadcrumb"><a href="index.html">Inicio</a> / <span>Nosotros</span></p>
+      <h1>Sobre Baby Saraí</h1>
+      <p>Ropa de bebé nueva y seminueva, escogida con cariño para acompañar los primeros años — cómoda para el bebé, amable con el bolsillo y con el planeta.</p>
+    </div>
+    <div class="intro-arte" data-prenda="vestido" data-color="#F1CFD6" aria-hidden="true"></div>
   </div>
 </section>
-
-<main class="section wrap">
-  <div class="prose">
+<main class="section section--tight">
+  <div class="wrap historia">
     <h2>Nuestra historia</h2>
-    <p>Baby Saraí nació de una necesidad muy simple: los bebés crecen rápido y la ropa que usan por poco tiempo no debería terminar guardada en una caja o desechada. Empezamos vendiendo un lote pequeño de prendas seminuevas en excelente estado, y con el tiempo sumamos también prendas nuevas de proveedores locales, siempre con la misma idea de fondo: vestir bien a los más pequeños sin que eso signifique gastar de más ni generar más desperdicio.</p>
+    <div class="historia-texto">
+      <p class="historia-destacado">Los bebés crecen rápido, y la ropa que usan por poco tiempo no debería terminar guardada en una caja.</p>
+      <p>Baby Saraí nació de esa necesidad muy simple. Empezamos vendiendo un lote pequeño de prendas seminuevas en excelente estado, y con el tiempo sumamos también prendas nuevas de proveedores locales, siempre con la misma idea de fondo: vestir bien a los más pequeños sin que eso signifique gastar de más ni generar más desperdicio.</p>
+    </div>
+  </div>
 
-    <h2>Lo que nos importa</h2>
+  <div class="wrap">
+    <h2 class="titulo-valores">Lo que nos importa</h2>
     <div class="values-grid">
-      <div class="value-card">
+      <div class="value-card" data-revelar>
+        <span class="tag-ojal" aria-hidden="true"></span>
         <h3>Calidad revisada</h3>
         <p>Cada prenda seminueva pasa por una revisión de tela, costuras y cierres antes de publicarse. Si no cumple nuestro estándar, no la vendemos.</p>
       </div>
-      <div class="value-card">
+      <div class="value-card" data-revelar>
+        <span class="tag-ojal" aria-hidden="true"></span>
         <h3>Precios accesibles</h3>
         <p>Combinar prendas nuevas y seminuevas nos permite ofrecer variedad de precios sin sacrificar comodidad ni seguridad para el bebé.</p>
       </div>
-      <div class="value-card">
+      <div class="value-card" data-revelar>
+        <span class="tag-ojal" aria-hidden="true"></span>
         <h3>Consumo responsable</h3>
         <p>Darle una segunda vida a la ropa infantil reduce el desperdicio textil, uno de los mayores problemas ambientales de la industria de la moda.</p>
       </div>
     </div>
+  </div>
 
+  <div class="wrap prose por-que">
     <h2>¿Por qué comprar en Baby Saraí?</h2>
-    <ul>
+    <ul class="lista-check">
       <li>Catálogo pensado por edades: 0–3, 3–6 y 6–12 meses.</li>
       <li>Prendas nuevas y seminuevas claramente identificadas en cada producto.</li>
       <li>Política de cambios flexible, detallada en <a href="envios-devoluciones.html">envíos y devoluciones</a>.</li>
@@ -115,6 +129,8 @@
   <div class="footer-bottom">© 2026 Baby Saraí — Ropa de bebé nueva y seminueva</div>
 </footer>
 
+<script src="js/prendas.js"></script>
 <script src="js/main.js"></script>
+<script src="js/animaciones.js"></script>
 </body>
 </html>
