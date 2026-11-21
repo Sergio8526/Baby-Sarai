@@ -1,7 +1,7 @@
 /**
  * Lógica de la página de administración de categorías.
  */
-import { peticionApi, mostrarMensaje, crearCelda, crearEtiqueta, crearBoton } from './api.js';
+import { peticionApi, mostrarMensaje, crearCelda, crearEtiqueta, crearBoton, confirmar } from './api.js';
 
 const API_CATEGORIAS = '/api/categorias';
 
@@ -12,6 +12,9 @@ const btnGuardar = document.getElementById('btnGuardar');
 const btnCancelar = document.getElementById('btnCancelar');
 const mensaje = document.getElementById('mensaje');
 const tabla = document.getElementById('tablaCategorias');
+
+// Estado (activa/inactiva) de la categoría al empezar a editarla
+let estadoOriginal = null;
 
 const campos = {
   id: document.getElementById('id'),
@@ -46,6 +49,8 @@ async function cargarCategorias() {
       crearCelda(
         crearBoton('Editar', 'pequeno', () => editarCategoria(categoria)),
         ' ',
+        crearBoton(categoria.activo ? 'Desactivar' : 'Activar', 'pequeno', () => cambiarEstadoCategoria(categoria)),
+        ' ',
         crearBoton('Eliminar', 'pequeno peligro', () => eliminarCategoria(categoria))
       )
     );
@@ -62,6 +67,7 @@ function editarCategoria(categoria) {
   campos.nombre.value = categoria.nombre;
   campos.descripcion.value = categoria.descripcion ?? '';
   campos.activo.checked = Boolean(categoria.activo);
+  estadoOriginal = Boolean(categoria.activo);
 
   tituloFormulario.textContent = `Editar categoría: ${categoria.nombre}`;
   btnGuardar.textContent = 'Actualizar categoría';
@@ -75,6 +81,7 @@ function editarCategoria(categoria) {
 function limpiarFormulario() {
   formulario.reset();
   campos.id.value = '';
+  estadoOriginal = null;
   tituloFormulario.textContent = 'Nueva categoría';
   btnGuardar.textContent = 'Guardar categoría';
 }
@@ -93,6 +100,12 @@ async function guardarCategoria(evento) {
     activo: campos.activo.checked,
   };
 
+  // Si al editar se cambió el estado, se pide confirmación
+  if (id && estadoOriginal !== null && estadoOriginal !== datos.activo) {
+    const acepta = await confirmarCambioEstado(datos.nombre, datos.activo);
+    if (!acepta) return;
+  }
+
   try {
     const respuesta = await peticionApi(id ? `${API_CATEGORIAS}/${id}` : API_CATEGORIAS, {
       metodo: id ? 'PUT' : 'POST',
@@ -107,12 +120,60 @@ async function guardarCategoria(evento) {
 }
 
 /**
+ * Pide confirmación para activar o desactivar una categoría.
+ * @param {string} nombre
+ * @param {boolean} activar - true para activar, false para desactivar.
+ * @returns {Promise<boolean>}
+ */
+function confirmarCambioEstado(nombre, activar) {
+  return confirmar(activar
+    ? {
+        tipo: 'activar',
+        titulo: `¿Activar la categoría "${nombre}"?`,
+        mensaje: 'Volverá a estar disponible para asignarla a productos nuevos.',
+        textoAceptar: 'Sí, activar',
+      }
+    : {
+        tipo: 'desactivar',
+        titulo: `¿Desactivar la categoría "${nombre}"?`,
+        mensaje: 'Sus productos no se borran; la categoría aparecerá como "(inactiva)" en la página de productos.',
+        textoAceptar: 'Sí, desactivar',
+      });
+}
+
+/**
+ * Activa o desactiva una categoría desde la tabla, previa confirmación.
+ * @param {Object} categoria
+ */
+async function cambiarEstadoCategoria(categoria) {
+  const activar = !categoria.activo;
+  if (!(await confirmarCambioEstado(categoria.nombre, activar))) return;
+
+  try {
+    const respuesta = await peticionApi(`${API_CATEGORIAS}/${categoria.id}`, {
+      metodo: 'PUT',
+      datos: { nombre: categoria.nombre, descripcion: categoria.descripcion ?? '', activo: activar },
+    });
+    mostrarMensaje(mensaje, respuesta.mensaje);
+    await cargarCategorias();
+  } catch (error) {
+    mostrarMensaje(mensaje, error.message, 'error', error.detalles);
+  }
+}
+
+/**
  * Elimina una categoría previa confirmación.
  * Si tiene productos asociados, el servidor lo impide y se muestra el motivo.
  * @param {Object} categoria
  */
 async function eliminarCategoria(categoria) {
-  if (!confirm(`¿Eliminar la categoría "${categoria.nombre}"?`)) return;
+  const acepta = await confirmar({
+    tipo: 'peligro',
+    titulo: `¿Eliminar la categoría "${categoria.nombre}"?`,
+    mensaje: 'Esta acción no se puede deshacer. Si la categoría tiene productos, el sistema no permitirá eliminarla.',
+    textoAceptar: 'Sí, eliminar',
+  });
+  if (!acepta) return;
 
   try {
     const respuesta = await peticionApi(`${API_CATEGORIAS}/${categoria.id}`, { metodo: 'DELETE' });

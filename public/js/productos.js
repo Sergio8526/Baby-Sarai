@@ -8,6 +8,7 @@ import {
   crearCelda,
   crearEtiqueta,
   crearBoton,
+  confirmar,
 } from './api.js';
 
 const API_PRODUCTOS = '/api/productos';
@@ -21,6 +22,9 @@ const btnCancelar = document.getElementById('btnCancelar');
 const mensaje = document.getElementById('mensaje');
 const tabla = document.getElementById('tablaProductos');
 const filtroCategoria = document.getElementById('filtroCategoria');
+
+// Visibilidad del producto al empezar a editarlo
+let visibleOriginal = null;
 
 const campos = {
   id: document.getElementById('id'),
@@ -104,6 +108,7 @@ function editarProducto(producto) {
   campos.stock.value = producto.stock;
   campos.descripcion.value = producto.descripcion ?? '';
   campos.activo.checked = Boolean(producto.activo);
+  visibleOriginal = Boolean(producto.activo);
 
   tituloFormulario.textContent = `Editar producto: ${producto.nombre}`;
   btnGuardar.textContent = 'Actualizar producto';
@@ -117,6 +122,7 @@ function editarProducto(producto) {
 function limpiarFormulario() {
   formulario.reset();
   campos.id.value = '';
+  visibleOriginal = null;
   tituloFormulario.textContent = 'Nuevo producto';
   btnGuardar.textContent = 'Guardar producto';
 }
@@ -140,6 +146,24 @@ async function guardarProducto(evento) {
     activo: campos.activo.checked,
   };
 
+  // Si al editar se cambió la visibilidad en la tienda, se pide confirmación
+  if (id && visibleOriginal !== null && visibleOriginal !== datos.activo) {
+    const acepta = await confirmar(datos.activo
+      ? {
+          tipo: 'mostrar',
+          titulo: `¿Mostrar "${datos.nombre}" en la tienda?`,
+          mensaje: 'Los clientes podrán verlo y comprarlo.',
+          textoAceptar: 'Sí, mostrar',
+        }
+      : {
+          tipo: 'ocultar',
+          titulo: `¿Ocultar "${datos.nombre}" de la tienda?`,
+          mensaje: 'No se borra: seguirá en el inventario con la etiqueta "Oculto".',
+          textoAceptar: 'Sí, ocultar',
+        });
+    if (!acepta) return;
+  }
+
   try {
     const respuesta = await peticionApi(id ? `${API_PRODUCTOS}/${id}` : API_PRODUCTOS, {
       metodo: id ? 'PUT' : 'POST',
@@ -158,7 +182,13 @@ async function guardarProducto(evento) {
  * @param {Object} producto
  */
 async function eliminarProducto(producto) {
-  if (!confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
+  const acepta = await confirmar({
+    tipo: 'peligro',
+    titulo: `¿Eliminar "${producto.nombre}"?`,
+    mensaje: 'Esta acción no se puede deshacer.',
+    textoAceptar: 'Sí, eliminar',
+  });
+  if (!acepta) return;
 
   try {
     const respuesta = await peticionApi(`${API_PRODUCTOS}/${producto.id}`, { metodo: 'DELETE' });

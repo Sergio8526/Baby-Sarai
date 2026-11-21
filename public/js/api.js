@@ -106,3 +106,102 @@ export function crearBoton(texto, clases, alHacerClic) {
   boton.addEventListener('click', alHacerClic);
   return boton;
 }
+/* ==========================================================================
+   Ventana de confirmación
+   Reemplaza el confirm() del navegador por una ventana propia del panel,
+   con animación de entrada y salida. Devuelve una promesa con true o false.
+   ========================================================================== */
+
+const ICONOS_CONFIRMACION = {
+  peligro: '<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  activar: '<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 10"/>',
+  desactivar: '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
+  ocultar: '<path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 9 4.5 10 7-.4 1-1.2 2.3-2.4 3.5M6.6 6.6C4.5 8 3.2 10 2 12c1 2.5 5 7 10 7 1.7 0 3.3-.5 4.6-1.3"/>',
+  mostrar: '<path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+};
+
+let ventana = null;
+
+/** Crea la ventana una sola vez y la reutiliza. */
+function crearVentana() {
+  ventana = document.createElement('dialog');
+  ventana.className = 'confirmacion';
+  ventana.setAttribute('aria-labelledby', 'confirmacionTitulo');
+  ventana.setAttribute('aria-describedby', 'confirmacionTexto');
+  ventana.innerHTML = `
+    <div class="confirmacion-icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </div>
+    <h2 id="confirmacionTitulo"></h2>
+    <p id="confirmacionTexto"></p>
+    <div class="confirmacion-botones">
+      <button type="button" class="secundario" data-respuesta="no"></button>
+      <button type="button" data-respuesta="si"></button>
+    </div>`;
+  document.body.append(ventana);
+  return ventana;
+}
+
+/**
+ * Pide confirmación al usuario con una ventana animada.
+ * @param {Object} opciones
+ * @param {string} opciones.titulo - Pregunta principal, por ejemplo "¿Eliminar ...?".
+ * @param {string} [opciones.mensaje] - Explicación de lo que va a pasar.
+ * @param {string} [opciones.textoAceptar='Aceptar']
+ * @param {string} [opciones.textoCancelar='Cancelar']
+ * @param {'peligro'|'activar'|'desactivar'|'ocultar'|'mostrar'} [opciones.tipo='peligro']
+ * @returns {Promise<boolean>} true si acepta, false si cancela.
+ */
+export function confirmar({ titulo, mensaje = '', textoAceptar = 'Aceptar', textoCancelar = 'Cancelar', tipo = 'peligro' }) {
+  const dialogo = ventana || crearVentana();
+  const botonSi = dialogo.querySelector('[data-respuesta="si"]');
+  const botonNo = dialogo.querySelector('[data-respuesta="no"]');
+
+  dialogo.dataset.tipo = tipo;
+  dialogo.querySelector('svg').innerHTML = ICONOS_CONFIRMACION[tipo] || ICONOS_CONFIRMACION.peligro;
+  dialogo.querySelector('h2').textContent = titulo;
+  dialogo.querySelector('p').textContent = mensaje;
+  dialogo.querySelector('p').hidden = !mensaje;
+  botonSi.textContent = textoAceptar;
+  botonNo.textContent = textoCancelar;
+  botonSi.className = tipo === 'peligro' ? 'peligro-solido' : '';
+
+  return new Promise((resolver) => {
+    let respondida = false;
+
+    function cerrar(respuesta) {
+      if (respondida) return;
+      respondida = true;
+      dialogo.removeEventListener('click', alHacerClic);
+      dialogo.removeEventListener('cancel', alCancelar);
+
+      // Animación de salida y luego se cierra de verdad
+      dialogo.classList.add('cerrando');
+      const terminar = () => {
+        dialogo.classList.remove('cerrando');
+        dialogo.close();
+        resolver(respuesta);
+      };
+      const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (sinMovimiento) terminar();
+      else dialogo.addEventListener('animationend', terminar, { once: true });
+    }
+
+    function alHacerClic(evento) {
+      const boton = evento.target.closest('[data-respuesta]');
+      if (boton) return cerrar(boton.dataset.respuesta === 'si');
+      if (evento.target === dialogo) cerrar(false);       // clic en el fondo oscuro
+    }
+
+    function alCancelar(evento) {                         // tecla Escape
+      evento.preventDefault();
+      cerrar(false);
+    }
+
+    dialogo.addEventListener('click', alHacerClic);
+    dialogo.addEventListener('cancel', alCancelar);
+    dialogo.showModal();
+    // En acciones destructivas el foco queda en "Cancelar" para evitar errores
+    (tipo === 'peligro' ? botonNo : botonSi).focus();
+  });
+}
