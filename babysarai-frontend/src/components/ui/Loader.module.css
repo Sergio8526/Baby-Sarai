@@ -1,0 +1,30 @@
+/* Estilos exclusivos de React (no existen en la tienda estática) */
+.contenedor {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 64px 16px;
+  color: var(--color-ink-soft, #6b5d59);
+  font-size: 0.95rem;
+}
+
+.prenda {
+  width: 64px;
+  transform-origin: 50% 0;
+  animation: balanceo 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes balanceo {
+  from {
+    rotate: -10deg;
+  }
+  to {
+    rotate: 10deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prenda {
+    animation: none;
+  }
+}
