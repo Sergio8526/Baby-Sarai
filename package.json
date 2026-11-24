@@ -1,15 +1,19 @@
 {
   "name": "baby-sarai-api",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "API REST de Baby Saraí: catálogo, usuarios y pedidos (SENA GA7-220501096)",
   "main": "src/server.js",
   "scripts": {
-    "test": "node --test --test-concurrency=1 pruebas/api.test.js",
+    "test": "npm run test:unit && npm run test:integracion",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "lint": "eslint src scripts pruebas",
     "format": "prettier --write src scripts pruebas docs",
-    "crear-admin": "node scripts/crearAdmin.js"
+    "crear-admin": "node scripts/crearAdmin.js",
+    "test:unit": "node --test \"pruebas/unitarias/*.test.js\"",
+    "test:integracion": "node --test --test-concurrency=1 pruebas/api.test.js",
+    "build:front": "npm --prefix babysarai-frontend run build",
+    "install:front": "npm --prefix babysarai-frontend install"
   },
   "repository": {
     "type": "git",

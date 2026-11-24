@@ -27,7 +27,15 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Archivos del panel de administración
+// Front-end en React ya compilado (npm run build:front genera babysarai-frontend/dist).
+// Así la tienda, el panel y la API se sirven juntos desde http://localhost:3000.
+const CARPETA_FRONT = path.join(__dirname, '..', 'babysarai-frontend', 'dist');
+const hayFrontCompilado = fs.existsSync(path.join(CARPETA_FRONT, 'index.html'));
+if (hayFrontCompilado) {
+  app.use(express.static(CARPETA_FRONT));
+}
+
+// Panel HTML anterior (evidencias AA2 a AA4), se conserva como referencia
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Información general de la API
@@ -70,6 +78,12 @@ app.use(
 
 // Rutas de la API que no existen → 404 en JSON
 app.use('/api', rutaNoEncontrada);
+
+// Cualquier otra ruta GET (/catalogo, /admin/pedidos...) la resuelve React Router:
+// se entrega index.html y el enrutador del navegador muestra la página correcta.
+if (hayFrontCompilado) {
+  app.get('/{*ruta}', (req, res) => res.sendFile(path.join(CARPETA_FRONT, 'index.html')));
+}
 
 // Manejo centralizado de errores (siempre debe ir de último)
 app.use(manejarErrores);
