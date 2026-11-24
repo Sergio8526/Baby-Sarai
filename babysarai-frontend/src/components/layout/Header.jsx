@@ -1,18 +1,39 @@
 /**
  * Encabezado de la tienda (diseño de babysarai-web): logo, menú con las
- * categorías activas, buscador desplegable y botón del carrito con contador.
+ * categorías activas, buscador desplegable, cuenta del usuario y botón del
+ * carrito con contador.
  */
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useCart } from '../../hooks/useCart.js';
 import { useConsulta } from '../../hooks/useConsulta.js';
 import { listarCategoriasActivas } from '../../services/categoriaService.js';
+
+/** Ícono de la cuenta (silueta). */
+function IconoCuenta() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </svg>
+  );
+}
 
 /** Cuántas categorías caben en el menú antes de que se vea apretado. */
 const CATEGORIAS_EN_MENU = 3;
 
 export default function Header() {
   const { totalUnidades } = useCart();
+  const { usuario, esAdmin, cerrarSesion } = useAuth();
   const { datos: categorias } = useConsulta(listarCategoriasActivas);
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
@@ -55,6 +76,13 @@ export default function Header() {
   };
 
   const cerrarMenu = () => setMenuAbierto(false);
+
+  /** Cierra la sesión y vuelve al inicio (así ninguna página privada queda abierta). */
+  const salir = () => {
+    navigate('/');
+    setMenuAbierto(false);
+    cerrarSesion();
+  };
 
   return (
     <header className="site-header">
@@ -128,6 +156,28 @@ export default function Header() {
               />
             </div>
           </form>
+
+          {usuario ? (
+            <div className="cuenta-menu">
+              <Link
+                to={esAdmin ? '/admin' : '/mis-pedidos'}
+                className="cuenta-link"
+                onClick={cerrarMenu}
+                title={esAdmin ? 'Ir al panel' : 'Ver mis pedidos'}
+              >
+                <IconoCuenta />
+                <span>{esAdmin ? 'Panel' : usuario.nombre.split(' ')[0]}</span>
+              </Link>
+              <button type="button" className="cuenta-salir" onClick={salir}>
+                Salir
+              </button>
+            </div>
+          ) : (
+            <Link to="/ingresar" className="cuenta-link" onClick={cerrarMenu}>
+              <IconoCuenta />
+              <span>Ingresar</span>
+            </Link>
+          )}
 
           <Link to="/carrito" className="cart-link" onClick={cerrarMenu}>
             Carrito{' '}

@@ -5,9 +5,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
-// Orden de los estilos: primero las fuentes, luego la tienda y al final el panel
+// Orden de los estilos: fuentes, tienda, cuenta de usuario y al final el panel
 import './styles/fuentes.css';
 import './styles/tienda.css';
+import './styles/cuenta.css';
 import './styles/panel.css';
 
 // La clase "js" activa las animaciones de entrada de tienda.css

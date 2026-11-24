@@ -1,8 +1,10 @@
 /**
  * Barra lateral del panel de administración (diseño de public/css/admin.css):
- * fondo oscuro, nombre de la marca con costura punteada y menú con íconos.
+ * fondo oscuro, nombre de la marca con costura punteada, menú con íconos
+ * y la sesión de la administradora con el botón para salir.
  */
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
+import { useAuth } from '../../hooks/useAuth.js';
 
 // Íconos dibujados en SVG (los mismos del panel HTML)
 const ICONOS = {
@@ -14,13 +16,28 @@ const ICONOS = {
       <circle cx="8.2" cy="8.2" r="1.4" />
     </>
   ),
+  pedidos: (
+    <>
+      <path d="M6 3h12l1 18H5L6 3Z" />
+      <path d="M9 7a3 3 0 0 0 6 0" />
+    </>
+  ),
+  usuarios: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.5.8 2.5 2.6 3 5.2" />
+    </>
+  ),
   tienda: <path d="M3 9.5 12 3l9 6.5V21h-6v-6H9v6H3Z" />,
+  salir: <path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h10" />,
 };
 
 const ENLACES = [
   { ruta: '/admin', texto: 'Resumen', icono: 'resumen', exacta: true },
   { ruta: '/admin/productos', texto: 'Productos', icono: 'productos' },
   { ruta: '/admin/categorias', texto: 'Categorías', icono: 'categorias' },
+  { ruta: '/admin/pedidos', texto: 'Pedidos', icono: 'pedidos' },
+  { ruta: '/admin/usuarios', texto: 'Usuarios', icono: 'usuarios' },
 ];
 
 /** Dibuja un ícono con el trazo del panel. */
@@ -41,6 +58,14 @@ function Icono({ nombre }) {
 }
 
 export default function Sidebar() {
+  const { usuario, cerrarSesion } = useAuth();
+  const navigate = useNavigate();
+
+  const salir = () => {
+    cerrarSesion();
+    navigate('/ingresar');
+  };
+
   return (
     <header className="barra">
       <Link to="/admin" className="marca">
@@ -62,6 +87,17 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      <div className="sesion-panel">
+        <p>
+          <span>Sesión de</span>
+          <strong>{usuario?.nombre}</strong>
+        </p>
+        <button type="button" className="ver-tienda salir" onClick={salir}>
+          <Icono nombre="salir" />
+          Cerrar sesión
+        </button>
+      </div>
 
       <Link to="/" className="ver-tienda">
         <Icono nombre="tienda" />

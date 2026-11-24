@@ -811,3 +811,114 @@ dialog.confirmacion[open]::backdrop {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =====================================================
+   Integración de módulos (GA8-AA1-EV01):
+   sesión de la administradora, pedidos y usuarios
+   ===================================================== */
+.panel .barra .sesion-panel {
+  margin-top: auto;
+  border-top: 1.5px dashed rgba(243, 214, 192, 0.2);
+  padding-top: 16px;
+}
+.panel .barra .sesion-panel p {
+  margin: 0 12px 8px;
+  display: grid;
+  font-size: 13px;
+  color: var(--riel-tenue);
+}
+.panel .barra .sesion-panel strong {
+  color: var(--riel-texto);
+  font-weight: 600;
+  font-size: 14px;
+}
+.panel .barra .sesion-panel + .ver-tienda {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+.panel .barra button.salir {
+  width: 100%;
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+  justify-content: flex-start;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-weight: 500;
+}
+@media (hover: hover) {
+  .panel .barra button.salir:hover:not(:disabled) {
+    background: rgba(243, 231, 225, 0.08);
+    color: var(--riel-texto);
+  }
+}
+
+/* Detalle de un pedido dentro del panel */
+.panel .detalle-pedido-panel {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin-top: 8px;
+}
+.panel .detalle-pedido-panel h3 {
+  font-family: var(--fuente-titulos);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.panel .detalle-pedido-panel p {
+  margin: 0 0 6px;
+  color: var(--tinta-suave);
+}
+.panel .lineas-pedido ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.panel .lineas-pedido li,
+.panel .lineas-pedido dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--linea);
+}
+.panel .lineas-pedido dl {
+  margin: 8px 0 0;
+}
+.panel .lineas-pedido dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.panel .lineas-pedido .total {
+  font-weight: 600;
+  border-bottom: none;
+}
+.panel .lineas-pedido small {
+  color: var(--tinta-suave);
+}
+.panel .botones-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.panel tr.seleccionada td {
+  background: var(--rosa-tenue);
+}
+@media (max-width: 760px) {
+  .panel .detalle-pedido-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Acciones de la tabla de usuarios: un botón debajo del otro para que la tabla quepa */
+.panel .acciones-apiladas {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 112px;
+}

@@ -1,15 +1,17 @@
 /**
- * Resumen del panel: indicadores del inventario y productos por agotarse.
- * Los indicadores se calculan en el navegador a partir de la lista de productos.
+ * Resumen del panel: indicadores del inventario, pedidos por atender y
+ * productos por agotarse. Los indicadores se calculan en el navegador a partir
+ * de las listas que entrega la API.
  */
 import { Link } from 'react-router';
 import Loader from '../../components/ui/Loader.jsx';
 import Mensaje from '../../components/ui/Mensaje.jsx';
 import { useConsulta } from '../../hooks/useConsulta.js';
 import { listarCategorias } from '../../services/categoriaService.js';
+import { listarPedidosPendientes } from '../../services/pedidoService.js';
 import { listarProductos } from '../../services/productoService.js';
 import { STOCK_BAJO } from '../../utils/constantes.js';
-import { formatearPrecio } from '../../utils/formato.js';
+import { formatearFecha, formatearPrecio } from '../../utils/formato.js';
 
 /**
  * Calcula los indicadores del inventario.
@@ -30,10 +32,12 @@ function calcularIndicadores(productos) {
 export default function Dashboard() {
   const productos = useConsulta(listarProductos);
   const categorias = useConsulta(listarCategorias);
+  const pendientes = useConsulta(listarPedidosPendientes);
 
-  if (productos.cargando || categorias.cargando) return <Loader texto="Calculando el resumen..." />;
+  if (productos.cargando || categorias.cargando || pendientes.cargando)
+    return <Loader texto="Calculando el resumen..." />;
 
-  const error = productos.error || categorias.error;
+  const error = productos.error || categorias.error || pendientes.error;
   if (error) return <Mensaje tipo="error">{error.message}</Mensaje>;
 
   const indicadores = calcularIndicadores(productos.datos);
@@ -46,12 +50,12 @@ export default function Dashboard() {
     {
       titulo: 'Unidades en stock',
       valor: indicadores.unidades,
-      nota: 'Suma de todo el inventario',
+      nota: `Valor: ${formatearPrecio(indicadores.valorInventario)}`,
     },
     {
-      titulo: 'Valor del inventario',
-      valor: formatearPrecio(indicadores.valorInventario),
-      nota: 'Precio × stock',
+      titulo: 'Pedidos pendientes',
+      valor: pendientes.datos.length,
+      nota: `Por ${formatearPrecio(pendientes.datos.reduce((suma, p) => suma + p.total, 0))}`,
     },
     {
       titulo: 'Categorías',
@@ -78,6 +82,29 @@ export default function Dashboard() {
           </section>
         ))}
       </div>
+
+      <section className="tarjeta">
+        <h2>Pedidos por atender</h2>
+        {pendientes.datos.length === 0 ? (
+          <p>No hay pedidos pendientes.</p>
+        ) : (
+          <ul className="lista-stock">
+            {pendientes.datos.slice(0, 5).map((pedido) => (
+              <li key={pedido.id}>
+                <span>
+                  #{pedido.id} · {pedido.clienteNombre} · {formatearFecha(pedido.fechaCreacion)}
+                </span>
+                <strong>{formatearPrecio(pedido.total)}</strong>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p style={{ marginTop: 16 }}>
+          <Link to="/admin/pedidos" className="enlace">
+            Ir a pedidos
+          </Link>
+        </p>
+      </section>
 
       <section className="tarjeta">
         <h2>Por agotarse (stock de {STOCK_BAJO} o menos)</h2>
