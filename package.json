@@ -1,17 +1,22 @@
 {
-  "name": "baby_sarai_sena",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "baby-sarai-api",
+  "version": "2.0.0",
+  "description": "API REST de Baby Saraí: catálogo, usuarios y pedidos (SENA GA7-220501096)",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test --test-concurrency=1 pruebas/api.test.js",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint src scripts pruebas",
+    "format": "prettier --write src scripts pruebas docs",
+    "crear-admin": "node scripts/crearAdmin.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sergio8526/Baby-Sarai.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sergio Andrés Herrera Castro",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -19,8 +24,18 @@
   },
   "homepage": "https://github.com/Sergio8526/Baby-Sarai#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
-    "mysql2": "^3.24.4"
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.4",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1"
   }
 }
