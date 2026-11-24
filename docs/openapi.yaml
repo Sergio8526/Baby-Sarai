@@ -1,0 +1,706 @@
+openapi: 3.0.3
+info:
+  title: API Baby Saraí
+  version: 2.0.0
+  description: |
+    Servicios web de la tienda en línea **Baby Saraí** (ropa y accesorios para bebé, nuevos y de segunda mano).
+
+    **Cómo probar las rutas protegidas desde esta página**
+    1. Ejecuta `POST /auth/login` con tu correo y contraseña (botón *Try it out*).
+    2. Copia el valor de `token` de la respuesta.
+    3. Pulsa el botón **Authorize** (arriba a la derecha), pega el token y confirma.
+
+    **Roles**
+    - `cliente`: consulta el catálogo, compra y ve o cancela sus propios pedidos.
+    - `admin`: además administra productos, categorías, usuarios y el estado de todos los pedidos.
+
+    **Errores**: todas las respuestas de error tienen la forma `{ "mensaje": "...", "detalles": ["..."] }`.
+
+    Evidencia SENA GA7-220501096-AA5-EV03 · Sergio Andrés Herrera Castro · Ficha 3186588.
+  contact:
+    name: Sergio Andrés Herrera Castro
+    url: https://github.com/Sergio8526/Baby-Sarai
+servers:
+  - url: /api/v1
+    description: Versión 1 (este servidor)
+tags:
+  - name: Autenticación
+    description: Registro de clientes, inicio de sesión (JWT) y perfil
+  - name: Categorías
+    description: Categorías del catálogo. Consultar es público; modificar es solo para admin
+  - name: Productos
+    description: Productos del catálogo. Consultar es público; modificar es solo para admin
+  - name: Pedidos
+    description: Compras de los clientes, con descuento automático del inventario
+  - name: Usuarios
+    description: Administración de cuentas (solo admin)
+
+paths:
+  /auth/registro:
+    post:
+      tags: [Autenticación]
+      summary: Crear una cuenta de cliente
+      description: Siempre crea el rol `cliente`. La contraseña se guarda cifrada con bcrypt.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegistroEntrada' }
+      responses:
+        '201':
+          description: Cuenta creada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Cuenta creada. Ya puedes iniciar sesión }
+                  usuario: { $ref: '#/components/schemas/Usuario' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '409':
+          description: Ya existe una cuenta con ese correo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión y obtener un token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginEntrada' }
+      responses:
+        '200':
+          description: Autenticación satisfactoria
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginRespuesta' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401':
+          description: Correo o contraseña incorrectos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { mensaje: Correo o contraseña incorrectos, detalles: [] }
+        '403':
+          description: La cuenta está desactivada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/perfil:
+    get:
+      tags: [Autenticación]
+      summary: Consultar los datos del usuario dueño del token
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Datos del usuario
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /categorias:
+    get:
+      tags: [Categorías]
+      summary: Listar categorías
+      parameters:
+        - name: soloActivas
+          in: query
+          description: '`true` para listar solo las categorías visibles en la tienda'
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Lista de categorías ordenada por nombre
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Categoria' }
+    post:
+      tags: [Categorías]
+      summary: Crear una categoría (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoriaEntrada' }
+      responses:
+        '201':
+          description: Categoría creada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Categoría creada }
+                  categoria: { $ref: '#/components/schemas/Categoria' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /categorias/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Categorías]
+      summary: Consultar una categoría
+      responses:
+        '200':
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Categoria' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    put:
+      tags: [Categorías]
+      summary: Actualizar una categoría (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoriaEntrada' }
+      responses:
+        '200':
+          description: Categoría actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Categoría actualizada }
+                  categoria: { $ref: '#/components/schemas/Categoria' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+    delete:
+      tags: [Categorías]
+      summary: Eliminar una categoría sin productos (admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Mensaje' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /productos:
+    get:
+      tags: [Productos]
+      summary: Listar productos
+      parameters:
+        - name: categoriaId
+          in: query
+          description: Solo productos de esta categoría
+          schema: { type: integer, minimum: 1 }
+        - name: soloActivos
+          in: query
+          description: '`true` para listar solo los productos visibles en la tienda'
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Lista de productos, del más reciente al más antiguo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Producto' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+    post:
+      tags: [Productos]
+      summary: Crear un producto (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductoEntrada' }
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Producto creado }
+                  producto: { $ref: '#/components/schemas/Producto' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+
+  /productos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Productos]
+      summary: Consultar un producto
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Producto' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    put:
+      tags: [Productos]
+      summary: Actualizar un producto (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductoEntrada' }
+      responses:
+        '200':
+          description: Producto actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Producto actualizado }
+                  producto: { $ref: '#/components/schemas/Producto' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    delete:
+      tags: [Productos]
+      summary: Eliminar un producto (admin)
+      description: Un producto que ya tiene pedidos no se puede eliminar (409); en ese caso se desactiva con `activo = false`.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Mensaje' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /pedidos:
+    post:
+      tags: [Pedidos]
+      summary: Crear un pedido (comprar)
+      description: |
+        Revisa que cada producto exista, esté activo y tenga stock suficiente; guarda el pedido con su detalle
+        y descuenta el inventario, todo dentro de una transacción. Los precios se toman de la base de datos.
+        El envío cuesta $10.000 y es gratis desde $150.000 de subtotal.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PedidoEntrada' }
+      responses:
+        '201':
+          description: Pedido creado
+          headers:
+            Location:
+              description: Ruta del pedido creado
+              schema: { type: string, example: /api/v1/pedidos/12 }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Pedido creado }
+                  pedido: { $ref: '#/components/schemas/Pedido' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409':
+          description: Algún producto no existe, está inactivo o no tiene stock suficiente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example:
+                mensaje: No se pudo crear el pedido
+                detalles: ['"Gorro tejido": pediste 12 y solo hay 10 disponible(s)']
+    get:
+      tags: [Pedidos]
+      summary: Listar pedidos
+      description: El cliente ve solo sus pedidos. La administración ve todos y puede filtrar por cliente.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoPedido' }
+        - name: usuarioId
+          in: query
+          description: Solo admin. Pedidos de un cliente
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Lista de pedidos (sin el detalle), del más reciente al más antiguo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PedidoResumen' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /pedidos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Pedidos]
+      summary: Consultar un pedido con su detalle
+      description: Un cliente solo puede ver sus pedidos; los de otras personas responden 404.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Pedido encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pedido' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /pedidos/{id}/cancelar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      tags: [Pedidos]
+      summary: Cancelar un pedido
+      description: El cliente puede cancelar su pedido mientras esté `pendiente`. Las unidades vuelven al inventario.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Pedido cancelado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Pedido cancelado }
+                  pedido: { $ref: '#/components/schemas/Pedido' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /pedidos/{id}/estado:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      tags: [Pedidos]
+      summary: Cambiar el estado de un pedido (admin)
+      description: |
+        Flujo permitido: `pendiente → pagado → enviado → entregado`.
+        Se puede cancelar desde `pendiente` o `pagado`; al cancelar, las unidades vuelven al inventario.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { $ref: '#/components/schemas/EstadoPedido' }
+            example: { estado: pagado }
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Pedido actualizado a "pagado" }
+                  pedido: { $ref: '#/components/schemas/Pedido' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /usuarios:
+    get:
+      tags: [Usuarios]
+      summary: Listar usuarios (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: rol
+          in: query
+          schema: { type: string, enum: [admin, cliente] }
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Usuario' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+
+  /usuarios/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Usuarios]
+      summary: Consultar un usuario (admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    patch:
+      tags: [Usuarios]
+      summary: Cambiar el rol o activar/desactivar una cuenta (admin)
+      description: Un usuario desactivado no puede iniciar sesión y sus tokens dejan de funcionar.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rol: { type: string, enum: [admin, cliente] }
+                activo: { type: boolean }
+            example: { activo: false }
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Usuario actualizado }
+                  usuario: { $ref: '#/components/schemas/Usuario' }
+        '400': { $ref: '#/components/responses/DatosInvalidos' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/SinPermiso' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token obtenido en POST /auth/login
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Identificador numérico del registro
+      schema: { type: integer, minimum: 1, example: 1 }
+
+  responses:
+    Mensaje:
+      description: Operación exitosa
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              mensaje: { type: string, example: Registro eliminado }
+    DatosInvalidos:
+      description: Datos no válidos; `detalles` lista cada problema
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            mensaje: Datos del producto no válidos
+            detalles: [El nombre es obligatorio, Debe seleccionar una categoría]
+    NoAutenticado:
+      description: Falta el token, es inválido o venció
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { mensaje: La sesión expiró. Inicia sesión de nuevo, detalles: [] }
+    SinPermiso:
+      description: El usuario no tiene el rol necesario
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { mensaje: No tienes permiso para realizar esta acción, detalles: [] }
+    NoEncontrado:
+      description: El registro no existe
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflicto:
+      description: La operación no se puede realizar en el estado actual de los datos
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        mensaje: { type: string }
+        detalles:
+          type: array
+          items: { type: string }
+
+    RegistroEntrada:
+      type: object
+      required: [nombre, email, contrasena]
+      properties:
+        nombre: { type: string, minLength: 3, maxLength: 100, example: Laura Gómez }
+        email: { type: string, format: email, maxLength: 120, example: laura@correo.com }
+        contrasena:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: Al menos una letra y un número
+          example: Clave2026
+        telefono: { type: string, example: '3001234567' }
+
+    LoginEntrada:
+      type: object
+      required: [email, contrasena]
+      properties:
+        email: { type: string, format: email, example: laura@correo.com }
+        contrasena: { type: string, format: password, example: Clave2026 }
+
+    LoginRespuesta:
+      type: object
+      properties:
+        mensaje: { type: string, example: Bienvenido(a), Laura Gómez }
+        token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... }
+        tipo: { type: string, example: Bearer }
+        expiraEn: { type: string, example: 2h }
+        usuario: { $ref: '#/components/schemas/Usuario' }
+
+    Usuario:
+      type: object
+      properties:
+        id: { type: integer, example: 3 }
+        nombre: { type: string, example: Laura Gómez }
+        email: { type: string, example: laura@correo.com }
+        rol: { type: string, enum: [admin, cliente], example: cliente }
+        telefono: { type: string, nullable: true, example: '3001234567' }
+        activo: { type: boolean, example: true }
+        fechaCreacion: { type: string, format: date-time }
+
+    CategoriaEntrada:
+      type: object
+      required: [nombre]
+      properties:
+        nombre: { type: string, maxLength: 60, example: Vestidos }
+        descripcion: { type: string, maxLength: 255, example: Vestidos para niña de 0 a 24 meses }
+        activo: { type: boolean, default: true }
+
+    Categoria:
+      type: object
+      properties:
+        id: { type: integer, example: 2 }
+        nombre: { type: string, example: Bodies }
+        descripcion: { type: string, nullable: true, example: Bodies de manga corta y manga larga }
+        activo: { type: integer, enum: [0, 1], example: 1 }
+        fechaCreacion: { type: string, format: date-time }
+
+    ProductoEntrada:
+      type: object
+      required: [nombre, precio, categoriaId]
+      properties:
+        nombre: { type: string, maxLength: 100, example: Body manga larga 0-3 meses }
+        descripcion: { type: string, maxLength: 255, example: Body de algodón manga larga }
+        categoriaId: { type: integer, minimum: 1, example: 1 }
+        talla: { type: string, maxLength: 20, example: 0-3 meses }
+        estado: { type: string, enum: [nuevo, usado], default: nuevo }
+        precio: { type: number, minimum: 0, example: 25000 }
+        stock: { type: integer, minimum: 0, default: 0, example: 4 }
+        activo: { type: boolean, default: true }
+
+    Producto:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nombre: { type: string, example: Body manga larga 0-3 meses }
+        descripcion: { type: string, nullable: true }
+        categoriaId: { type: integer, example: 1 }
+        categoriaNombre: { type: string, example: Recién nacido }
+        talla: { type: string, nullable: true, example: 0-3 meses }
+        estado: { type: string, enum: [nuevo, usado] }
+        precio: { type: number, example: 25000 }
+        stock: { type: integer, example: 4 }
+        activo: { type: integer, enum: [0, 1], example: 1 }
+        fechaCreacion: { type: string, format: date-time }
+        fechaActualizacion: { type: string, format: date-time, nullable: true }
+
+    EstadoPedido:
+      type: string
+      enum: [pendiente, pagado, enviado, entregado, cancelado]
+
+    PedidoEntrada:
+      type: object
+      required: [items, direccionEnvio, ciudad, telefono]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 30
+          items:
+            type: object
+            required: [productoId, cantidad]
+            properties:
+              productoId: { type: integer, minimum: 1, example: 1 }
+              cantidad: { type: integer, minimum: 1, maximum: 20, example: 2 }
+        direccionEnvio: { type: string, maxLength: 200, example: 'Calle 140 # 12-30, apto 402' }
+        ciudad: { type: string, maxLength: 60, example: Bogotá }
+        telefono: { type: string, example: '3001234567' }
+        notas: { type: string, maxLength: 255, example: Entregar en portería }
+
+    PedidoResumen:
+      type: object
+      properties:
+        id: { type: integer, example: 12 }
+        usuarioId: { type: integer, example: 3 }
+        clienteNombre: { type: string, example: Laura Gómez }
+        clienteEmail: { type: string, example: laura@correo.com }
+        estado: { $ref: '#/components/schemas/EstadoPedido' }
+        subtotal: { type: number, example: 50000 }
+        costoEnvio: { type: number, example: 10000 }
+        total: { type: number, example: 60000 }
+        direccionEnvio: { type: string }
+        ciudad: { type: string }
+        telefono: { type: string }
+        notas: { type: string, nullable: true }
+        unidades: { type: integer, example: 2 }
+        fechaCreacion: { type: string, format: date-time }
+        fechaActualizacion: { type: string, format: date-time, nullable: true }
+
+    Pedido:
+      allOf:
+        - $ref: '#/components/schemas/PedidoResumen'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  productoId: { type: integer, example: 1 }
+                  nombreProducto: { type: string, example: Body manga larga 0-3 meses }
+                  talla: { type: string, nullable: true, example: 0-3 meses }
+                  cantidad: { type: integer, example: 2 }
+                  precioUnitario: { type: number, example: 25000 }
+                  subtotal: { type: number, example: 50000 }
