@@ -3,6 +3,20 @@
 El proyecto usa [versionamiento semántico](https://semver.org/lang/es/): `MAYOR.MENOR.PARCHE`.
 La API se versiona en la URL (`/api/v1`).
 
+## [2.1.0] - 2026-11-24 · Evidencia GA8-220501096-AA1-EV01
+
+### Agregado
+- Integración del front-end React con la API v1: inicio de sesión, registro, compra en línea
+  (datos de envío y confirmación), mis pedidos y cancelación.
+- Panel de administración protegido por rol: gestión de pedidos (detalle y cambio de estado)
+  y de usuarios (rol y activación), y pedidos pendientes en el resumen.
+- Express sirve el front-end compilado (`babysarai-frontend/dist`) con fallback para React Router.
+- 47 pruebas unitarias del back-end sin base de datos (`npm run test:unit`) y 31 del front-end (Vitest).
+
+### Cambiado
+- El carrito ya no envía el pedido por WhatsApp: crea el pedido en la API.
+- El envío se muestra con la regla de la API: $10.000, gratis desde $150.000.
+
 ## [2.0.0] - 2026-11-24 · Evidencia GA7-220501096-AA5-EV03
 
 ### Agregado

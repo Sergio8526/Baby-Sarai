@@ -4,7 +4,7 @@ Tienda en línea de ropa y accesorios para bebé, nuevos y de segunda mano.
 Este repositorio contiene el backend (API REST), el panel de administración del catálogo
 y el front-end en React (`babysarai-frontend`).
 
-**Versión actual de la API:** `v1` · **Versión del proyecto:** 2.0.0 (ver [CHANGELOG.md](CHANGELOG.md))
+**Versión actual de la API:** `v1` · **Versión del proyecto:** 2.1.0 (ver [CHANGELOG.md](CHANGELOG.md))
 
 ## Tecnologías
 
@@ -13,7 +13,8 @@ y el front-end en React (`babysarai-frontend`).
 - **bcryptjs** (cifrado de contraseñas) y **jsonwebtoken** (tokens JWT)
 - **OpenAPI 3** + **swagger-ui-express** (documentación interactiva en `/api/docs`)
 - **dotenv** (configuración por variables de entorno)
-- **node:test** (pruebas automáticas), **ESLint** y **Prettier** (calidad del código)
+- **React 19**, **React Router 7** y **Vite** (front-end en `babysarai-frontend`)
+- **node:test** y **Vitest** (pruebas automáticas), **ESLint** y **Prettier** (calidad del código)
 
 ## Estructura del proyecto
 
@@ -26,8 +27,10 @@ Baby_Sarai_Sena/
 │   └── openapi.yaml      Especificación de todos los servicios (Swagger)
 ├── public/               Panel de administración (HTML, CSS, JS)
 ├── pruebas/
-│   ├── api.test.js       Pruebas automáticas (npm test)
-│   └── api.http          Pruebas manuales con REST Client
+│   ├── unitarias/        Pruebas unitarias sin base de datos (npm run test:unit)
+│   ├── api.test.js       Pruebas de integración contra MySQL (npm run test:integracion)
+│   ├── api.http          Pruebas manuales con REST Client
+│   └── postman/          Colección de Postman (AA5-EV04)
 ├── scripts/
 │   └── crearAdmin.js     Crea la cuenta de administración
 ├── src/
@@ -67,13 +70,31 @@ Baby_Sarai_Sena/
    ```
 6. Abrir la documentación en `http://localhost:3000/api/docs`
 
+## Ejecutar la aplicación completa (tienda + panel + API)
+
+Después de la instalación (pasos 1 a 4):
+
+```
+npm run install:front     # dependencias del front-end (solo la primera vez)
+npm run build:front       # compila React en babysarai-frontend/dist
+npm start                 # http://localhost:3000
+```
+
+Con el front-end compilado, Express sirve todo desde el mismo puerto: la tienda en `/`, el panel en `/admin`, la API en `/api/v1` y la documentación en `/api/docs`.
+
+Para **desarrollar** el front-end con recarga automática se usan dos terminales: `npm start` en la raíz y `npm run dev` dentro de `babysarai-frontend` (abre `http://localhost:5173`).
+
 ## Scripts
 
 | Comando | Qué hace |
 |---|---|
-| `npm start` | Inicia el servidor |
+| `npm start` | Inicia el servidor (API + front-end compilado) |
 | `npm run dev` | Inicia el servidor y lo reinicia al guardar cambios |
-| `npm test` | Ejecuta las 33 pruebas automáticas (requiere MySQL encendido) |
+| `npm test` | Ejecuta las pruebas unitarias y luego las de integración |
+| `npm run test:unit` | 47 pruebas unitarias, no necesitan MySQL |
+| `npm run test:integracion` | 33 pruebas de integración (requiere MySQL encendido) |
+| `npm run build:front` | Compila el front-end en `babysarai-frontend/dist` |
+| `npm run install:front` | Instala las dependencias del front-end |
 | `npm run lint` | Revisa el código con ESLint |
 | `npm run format` | Da formato al código con Prettier |
 | `npm run crear-admin` | Crea o promueve la cuenta de administración |
