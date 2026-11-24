@@ -1,6 +1,7 @@
 /**
  * Servicio de productos.
- * Reúne las llamadas al recurso /api/productos del back-end.
+ * Reúne las llamadas al recurso /api/v1/productos del back-end.
+ * Consultar es público; crear, actualizar y eliminar exige sesión de administradora.
  */
 import { peticionApi } from './api.js';
 

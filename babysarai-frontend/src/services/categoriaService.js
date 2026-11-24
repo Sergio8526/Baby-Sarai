@@ -1,6 +1,7 @@
 /**
  * Servicio de categorías.
- * Reúne las llamadas al recurso /api/categorias del back-end.
+ * Reúne las llamadas al recurso /api/v1/categorias del back-end.
+ * Consultar es público; crear, actualizar y eliminar exige sesión de administradora.
  */
 import { peticionApi } from './api.js';
 
