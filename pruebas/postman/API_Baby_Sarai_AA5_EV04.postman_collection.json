@@ -1,0 +1,2806 @@
+{
+  "info": {
+    "_postman_id": "6b2ee5a3-0978-4889-a954-8fe3f383291e",
+    "name": "API Baby Saraí v1 - AA5-EV04",
+    "description": "Testing de los servicios web de Baby Saraí construidos en la evidencia GA7-220501096-AA5-EV03.\n\nAprendiz: Sergio Andrés Herrera Castro · Ficha 3186588\n\nAntes de ejecutar:\n1. MySQL encendido y scripts 001 a 004 ejecutados.\n2. Cuenta de administración creada: npm run crear-admin -- \"Sergio Herrera\" admin@babysarai.com \"Admin2026\"\n3. Servidor encendido: npm start\n4. Si tu admin tiene otro correo o contraseña, cámbialos en la pestaña Variables (adminEmail y adminContrasena).\n\nLas peticiones dependen unas de otras (tokens e ids se guardan solos en las variables), así que se ejecutan en orden o con Run collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pruebas que se ejecutan en TODAS las peticiones de la colección",
+          "pm.test('La respuesta es JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+          "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Información y documentación",
+      "description": "Rutas generales: información de la API y especificación OpenAPI (Swagger).",
+      "item": [
+        {
+          "name": "0.1 Información de la API",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('La versión actual es v1', () => {",
+                  "  const r = pm.response.json();",
+                  "  pm.expect(r.versionesDisponibles).to.include('v1');",
+                  "  pm.expect(r.rutaBase).to.eql('/api/v1');",
+                  "});",
+                  "pm.test('Indica dónde está la documentación', () => pm.expect(pm.response.json().documentacion).to.eql('/api/docs'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api"
+              ]
+            },
+            "description": "Comprueba que el servidor está encendido y muestra la versión actual y la ruta de la documentación."
+          }
+        },
+        {
+          "name": "0.2 Especificación OpenAPI",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Es un documento OpenAPI 3', () => pm.expect(pm.response.json().openapi).to.match(/^3\\./));",
+                  "pm.test('Documenta los 5 módulos', () => {",
+                  "  const tags = pm.response.json().tags.map(t => t.name);",
+                  "  pm.expect(tags).to.have.members(['Autenticación', 'Categorías', 'Productos', 'Pedidos', 'Usuarios']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/docs/openapi.json",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "docs",
+                "openapi.json"
+              ]
+            },
+            "description": "Descarga la especificación OpenAPI 3 que alimenta la página de Swagger (/api/docs)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Autenticación",
+      "description": "Registro de clientes, inicio de sesión con JWT y perfil.",
+      "item": [
+        {
+          "name": "1.1 Registrar cliente",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Correo único para esta ejecución, enviado en MAYÚSCULAS para probar que se guarda en minúsculas",
+                  "const email = 'cliente.' + Date.now() + '@prueba.com';",
+                  "pm.collectionVariables.set('clienteEmail', email);",
+                  "pm.collectionVariables.set('clienteEmailMayusculas', email.toUpperCase());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Mensaje: Cuenta creada. Ya puedes iniciar sesión', () => pm.expect(pm.response.json().mensaje).to.eql('Cuenta creada. Ya puedes iniciar sesión'));",
+                  "pm.test('Se crea con rol cliente', () => pm.expect(pm.response.json().usuario.rol).to.eql('cliente'));",
+                  "pm.test('El correo se guarda en minúsculas', () => pm.expect(pm.response.json().usuario.email).to.eql(pm.collectionVariables.get('clienteEmail')));",
+                  "pm.test('La respuesta NO incluye la contraseña', () => {",
+                  "  pm.expect(pm.response.text()).to.not.include(pm.collectionVariables.get('clienteContrasena'));",
+                  "  pm.expect(pm.response.json().usuario).to.not.have.property('contrasenaHash');",
+                  "});",
+                  "pm.collectionVariables.set('clienteId', pm.response.json().usuario.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Crea una cuenta de cliente. El script previo genera un correo distinto en cada ejecución, así la colección se puede repetir.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Laura Gómez\",\n  \"email\": \"{{clienteEmailMayusculas}}\",\n  \"contrasena\": \"{{clienteContrasena}}\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.2 Registrar correo repetido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje: Ya existe una cuenta con ese correo', () => pm.expect(pm.response.json().mensaje).to.eql('Ya existe una cuenta con ese correo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Intenta crear otra cuenta con el mismo correo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Laura Gómez\",\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasena\": \"{{clienteContrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.3 Registrar con datos inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje: Datos de registro no válidos', () => pm.expect(pm.response.json().mensaje).to.eql('Datos de registro no válidos'));",
+                  "pm.test('Devuelve 3 errores en detalles', () => pm.expect(pm.response.json().detalles).to.have.lengthOf(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Nombre muy corto, correo sin formato y contraseña corta: responde todos los errores juntos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"A\",\n  \"email\": \"no-es-correo\",\n  \"contrasena\": \"corta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.4 Registrarse como admin (intento)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('intrusoEmail', 'intruso.' + Date.now() + '@prueba.com');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Se crea como cliente aunque pidió admin', () => pm.expect(pm.response.json().usuario.rol).to.eql('cliente'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Envía \"rol\": \"admin\" en el registro. La API lo ignora: el registro público siempre crea clientes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Intruso\",\n  \"email\": \"{{intrusoEmail}}\",\n  \"contrasena\": \"Intruso2026\",\n  \"rol\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.5 Iniciar sesión como cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "// Lee el contenido del JWT (no está cifrado, solo firmado)",
+                  "const cripto = require('crypto-js'); // librería incluida en Postman",
+                  "const leerToken = (t) => JSON.parse(cripto.enc.Base64.parse(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).toString(cripto.enc.Utf8));",
+                  "pm.test('Entrega un token Bearer', () => {",
+                  "  pm.expect(pm.response.json().tipo).to.eql('Bearer');",
+                  "  pm.expect(pm.response.json().token.split('.')).to.have.lengthOf(3);",
+                  "});",
+                  "pm.test('El token lleva el rol cliente y vence en 2 horas', () => {",
+                  "  const contenido = leerToken(pm.response.json().token);",
+                  "  pm.expect(contenido.rol).to.eql('cliente');",
+                  "  pm.expect(contenido.exp - contenido.iat).to.eql(7200);",
+                  "});",
+                  "pm.collectionVariables.set('tokenCliente', pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Correo y contraseña correctos. Guarda el token en {{tokenCliente}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasena\": \"{{clienteContrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.6 Iniciar sesión como administradora",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "// Lee el contenido del JWT (no está cifrado, solo firmado)",
+                  "const cripto = require('crypto-js'); // librería incluida en Postman",
+                  "const leerToken = (t) => JSON.parse(cripto.enc.Base64.parse(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).toString(cripto.enc.Utf8));",
+                  "pm.test('El token lleva el rol admin', () => pm.expect(leerToken(pm.response.json().token).rol).to.eql('admin'));",
+                  "pm.collectionVariables.set('tokenAdmin', pm.response.json().token);",
+                  "pm.collectionVariables.set('adminId', pm.response.json().usuario.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Cuenta creada con npm run crear-admin. Guarda el token en {{tokenAdmin}}. Si falla, revisa las variables adminEmail y adminContrasena.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"contrasena\": \"{{adminContrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.7 Contraseña incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Mensaje: Correo o contraseña incorrectos', () => pm.expect(pm.response.json().mensaje).to.eql('Correo o contraseña incorrectos'));",
+                  "pm.test('No entrega token', () => pm.expect(pm.response.json()).to.not.have.property('token'));",
+                  "pm.collectionVariables.set('respuestaClaveMala', pm.response.text());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Correo existente con contraseña equivocada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasena\": \"ClaveEquivocada9\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.8 Correo que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Responde igual que con contraseña incorrecta', () => pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('respuestaClaveMala')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Debe responder EXACTAMENTE lo mismo que la 1.7, para no revelar qué correos están registrados.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nadie@prueba.com\",\n  \"contrasena\": \"ClaveEquivocada9\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "1.9 Ver mi perfil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve los datos del dueño del token', () => pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('clienteEmail')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": "Ruta protegida: usa el token del cliente."
+          }
+        },
+        {
+          "name": "1.10 Perfil sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Pide iniciar sesión', () => pm.expect(pm.response.json().mensaje).to.include('Debes iniciar sesión'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": "No envía el encabezado Authorization."
+          }
+        },
+        {
+          "name": "1.11 Token modificado para ser admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Cambia \"rol\": \"cliente\" por \"rol\": \"admin\" dentro del token, conservando la firma original",
+                  "const cripto = require('crypto-js');",
+                  "const [encabezado, contenido, firma] = pm.collectionVariables.get('tokenCliente').split('.');",
+                  "const datos = JSON.parse(cripto.enc.Base64.parse(contenido.replace(/-/g, '+').replace(/_/g, '/')).toString(cripto.enc.Utf8));",
+                  "datos.rol = 'admin';",
+                  "const nuevo = cripto.enc.Base64.stringify(cripto.enc.Utf8.parse(JSON.stringify(datos))).replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');",
+                  "pm.collectionVariables.set('tokenAlterado', [encabezado, nuevo, firma].join('.'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Mensaje: Token inválido', () => pm.expect(pm.response.json().mensaje).to.eql('Token inválido'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAlterado}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": "Toma el token del cliente y cambia su rol a admin sin cambiar la firma. El servidor detecta la alteración."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categorías",
+      "description": "Consultar es público; crear, actualizar y eliminar es solo para la administradora.",
+      "item": [
+        {
+          "name": "2.1 Listar categorías (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve una lista', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias?soloActivas=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ],
+              "query": [
+                {
+                  "key": "soloActivas",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Sin token: la tienda muestra las categorías a cualquier visitante."
+          }
+        },
+        {
+          "name": "2.2 Crear categoría sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Sin iniciar sesión no se puede modificar el catálogo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sin permiso\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.3 Crear categoría como cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Mensaje: No tienes permiso para realizar esta acción', () => pm.expect(pm.response.json().mensaje).to.eql('No tienes permiso para realizar esta acción'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Un cliente tiene sesión, pero no el rol necesario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sin permiso\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.4 Crear categoría como admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('categoriaNombre', 'Prueba Postman ' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Mensaje: Categoría creada', () => pm.expect(pm.response.json().mensaje).to.eql('Categoría creada'));",
+                  "pm.test('Devuelve la categoría con su id', () => pm.expect(pm.response.json().categoria.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('categoriaId', pm.response.json().categoria.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "La administradora crea una categoría de prueba (nombre único por ejecución). Guarda su id.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{categoriaNombre}}\",\n  \"descripcion\": \"Categoría creada por las pruebas de Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.5 Crear categoría repetida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje: Ya existe un registro con ese nombre', () => pm.expect(pm.response.json().mensaje).to.eql('Ya existe un registro con ese nombre'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "El nombre de la categoría es único.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{categoriaNombre}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.6 Consultar categoría",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Es la categoría creada', () => pm.expect(pm.response.json().nombre).to.eql(pm.collectionVariables.get('categoriaNombre')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Consulta pública por id."
+          }
+        },
+        {
+          "name": "2.7 Actualizar categoría",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Mensaje: Categoría actualizada', () => pm.expect(pm.response.json().mensaje).to.eql('Categoría actualizada'));",
+                  "pm.test('Guarda la nueva descripción', () => pm.expect(pm.response.json().categoria.descripcion).to.eql('Descripción actualizada desde Postman'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Cambia la descripción.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{categoriaNombre}}\",\n  \"descripcion\": \"Descripción actualizada desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.8 Categoría que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Mensaje: Categoría no encontrada', () => pm.expect(pm.response.json().mensaje).to.eql('Categoría no encontrada'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias",
+                "999999"
+              ]
+            },
+            "description": "Id inexistente."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Productos",
+      "description": "Consultar es público; crear, actualizar y eliminar es solo para la administradora.",
+      "item": [
+        {
+          "name": "3.1 Crear producto: body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Mensaje: Producto creado', () => pm.expect(pm.response.json().mensaje).to.eql('Producto creado'));",
+                  "pm.test('Guarda precio y stock', () => {",
+                  "  const p = pm.response.json().producto;",
+                  "  pm.expect(p.precio).to.eql(30000);",
+                  "  pm.expect(p.stock).to.eql(5);",
+                  "});",
+                  "pm.collectionVariables.set('bodyId', pm.response.json().producto.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "description": "Producto de prueba con precio $30.000 y 5 unidades. Guarda su id en {{bodyId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Body de prueba Postman\",\n  \"categoriaId\": {{categoriaId}},\n  \"talla\": \"0-3 meses\",\n  \"estado\": \"nuevo\",\n  \"precio\": 30000,\n  \"stock\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.2 Crear producto: gorro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('gorroId', pm.response.json().producto.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "description": "Segundo producto: $60.000 y solo 2 unidades. Guarda su id en {{gorroId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Gorro de prueba Postman\",\n  \"categoriaId\": {{categoriaId}},\n  \"talla\": \"Única\",\n  \"estado\": \"nuevo\",\n  \"precio\": 60000,\n  \"stock\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.3 Crear producto inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje: Datos del producto no válidos', () => pm.expect(pm.response.json().mensaje).to.eql('Datos del producto no válidos'));",
+                  "pm.test('Lista los errores', () => pm.expect(pm.response.json().detalles.length).to.be.at.least(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "description": "Sin nombre, precio negativo y sin categoría.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"precio\": -100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.4 Listar productos de la categoría",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Trae los 2 productos de prueba', () => pm.expect(pm.response.json()).to.have.lengthOf(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos?categoriaId={{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "categoriaId",
+                  "value": "{{categoriaId}}"
+                }
+              ]
+            },
+            "description": "Consulta pública con filtro por categoría."
+          }
+        },
+        {
+          "name": "3.5 Consultar producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye el nombre de la categoría', () => pm.expect(pm.response.json()).to.have.property('categoriaNombre'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Consulta pública por id."
+          }
+        },
+        {
+          "name": "3.6 Actualizar producto como cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Un cliente intenta poner el precio en 0.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Body gratis\",\n  \"categoriaId\": {{categoriaId}},\n  \"precio\": 0,\n  \"stock\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.7 Actualizar producto como admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Mensaje: Producto actualizado', () => pm.expect(pm.response.json().mensaje).to.eql('Producto actualizado'));",
+                  "pm.test('Guarda la descripción', () => pm.expect(pm.response.json().producto.descripcion).to.eql('Body de algodón, actualizado desde Postman'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Cambia la descripción; el precio y el stock se mantienen.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Body de prueba Postman\",\n  \"descripcion\": \"Body de algodón, actualizado desde Postman\",\n  \"categoriaId\": {{categoriaId}},\n  \"talla\": \"0-3 meses\",\n  \"estado\": \"nuevo\",\n  \"precio\": 30000,\n  \"stock\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.8 Producto que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Mensaje: Producto no encontrado', () => pm.expect(pm.response.json().mensaje).to.eql('Producto no encontrado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "999999"
+              ]
+            },
+            "description": "Id inexistente."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Pedidos",
+      "description": "Compras con transacción: revisan stock, guardan el pedido y descuentan el inventario.",
+      "item": [
+        {
+          "name": "4.1 Comprar sin iniciar sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "Para comprar hay que tener sesión.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{bodyId}},\n      \"cantidad\": 1\n    }\n  ],\n  \"direccionEnvio\": \"Calle 140 # 12-30, apto 402\",\n  \"ciudad\": \"Bogotá\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.2 Crear pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Mensaje: Pedido creado', () => pm.expect(pm.response.json().mensaje).to.eql('Pedido creado'));",
+                  "const pedido = pm.response.json().pedido;",
+                  "pm.test('Queda pendiente', () => pm.expect(pedido.estado).to.eql('pendiente'));",
+                  "pm.test('Suma las líneas repetidas en una sola', () => {",
+                  "  pm.expect(pedido.items).to.have.lengthOf(1);",
+                  "  pm.expect(pedido.items[0].cantidad).to.eql(2);",
+                  "});",
+                  "pm.test('Calcula subtotal, envío y total', () => {",
+                  "  pm.expect(pedido.subtotal).to.eql(60000);",
+                  "  pm.expect(pedido.costoEnvio).to.eql(10000);",
+                  "  pm.expect(pedido.total).to.eql(70000);",
+                  "});",
+                  "pm.test('Encabezado Location con la ruta del pedido', () => pm.expect(pm.response.headers.get('Location')).to.eql('/api/v1/pedidos/' + pedido.id));",
+                  "pm.collectionVariables.set('pedidoId', pedido.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "2 bodies de $30.000 (enviados como dos líneas de 1 para probar que se suman). Subtotal $60.000 + envío $10.000.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{bodyId}},\n      \"cantidad\": 1\n    },\n    {\n      \"productoId\": {{bodyId}},\n      \"cantidad\": 1\n    }\n  ],\n  \"direccionEnvio\": \"Calle 140 # 12-30, apto 402\",\n  \"ciudad\": \"Bogotá\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.3 Verificar stock descontado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('El body tiene 3 unidades', () => pm.expect(pm.response.json().stock).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Había 5 bodies y se compraron 2."
+          }
+        },
+        {
+          "name": "4.4 Pedido con envío gratis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Envío gratis desde $150.000', () => {",
+                  "  pm.expect(pm.response.json().pedido.subtotal).to.eql(150000);",
+                  "  pm.expect(pm.response.json().pedido.costoEnvio).to.eql(0);",
+                  "});",
+                  "pm.collectionVariables.set('pedido2Id', pm.response.json().pedido.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "2 gorros ($120.000) + 1 body ($30.000) = $150.000: el envío es gratis.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{gorroId}},\n      \"cantidad\": 2\n    },\n    {\n      \"productoId\": {{bodyId}},\n      \"cantidad\": 1\n    }\n  ],\n  \"direccionEnvio\": \"Calle 140 # 12-30, apto 402\",\n  \"ciudad\": \"Bogotá\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.5 Pedido sin stock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje: No se pudo crear el pedido', () => pm.expect(pm.response.json().mensaje).to.eql('No se pudo crear el pedido'));",
+                  "pm.test('Explica qué producto no tiene stock', () => pm.expect(pm.response.json().detalles[0]).to.include('solo hay 0'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "Pide 1 body (sí hay) y 1 gorro (ya no quedan). La transacción se deshace completa.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{bodyId}},\n      \"cantidad\": 1\n    },\n    {\n      \"productoId\": {{gorroId}},\n      \"cantidad\": 1\n    }\n  ],\n  \"direccionEnvio\": \"Calle 140 # 12-30, apto 402\",\n  \"ciudad\": \"Bogotá\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.6 Verificar que no se descontó nada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('El body tiene 2 unidades', () => pm.expect(pm.response.json().stock).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Después del 4.4 quedaban 2 bodies. El pedido fallido no los tocó (ROLLBACK)."
+          }
+        },
+        {
+          "name": "4.7 Pedido con datos inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje: Datos del pedido no válidos', () => pm.expect(pm.response.json().mensaje).to.eql('Datos del pedido no válidos'));",
+                  "pm.test('Lista los errores', () => pm.expect(pm.response.json().detalles.length).to.be.at.least(4));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "Producto con letras, cantidad 0 y sin dirección.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": \"abc\",\n      \"cantidad\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.8 Mis pedidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Ve sus 2 pedidos', () => pm.expect(pm.response.json()).to.have.lengthOf(2));",
+                  "pm.test('Todos son suyos', () => pm.response.json().forEach(p => pm.expect(p.usuarioId).to.eql(Number(pm.collectionVariables.get('clienteId')))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "description": "El cliente ve solo sus pedidos."
+          }
+        },
+        {
+          "name": "4.9 Detalle de un pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Trae las líneas del pedido', () => pm.expect(pm.response.json().items[0]).to.include.keys('nombreProducto', 'precioUnitario', 'subtotal'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}"
+              ]
+            },
+            "description": "Incluye las líneas con el precio cobrado."
+          }
+        },
+        {
+          "name": "4.10 Pedido de otra persona",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// La administradora hace un pedido antes de esta petición",
+                  "pm.sendRequest({",
+                  "  url: pm.collectionVariables.get('baseUrl') + '/pedidos',",
+                  "  method: 'POST',",
+                  "  header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + pm.collectionVariables.get('tokenAdmin') },",
+                  "  body: { mode: 'raw', raw: JSON.stringify({ items: [{ productoId: Number(pm.collectionVariables.get('bodyId')), cantidad: 1 }], direccionEnvio: 'Calle 1', ciudad: 'Bogotá', telefono: '3000000000' }) }",
+                  "}, (error, respuesta) => { pm.collectionVariables.set('pedidoAdminId', respuesta.json().pedido.id); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Mensaje: Pedido no encontrado', () => pm.expect(pm.response.json().mensaje).to.eql('Pedido no encontrado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoAdminId}}"
+              ]
+            },
+            "description": "La administradora compra (script previo) y el cliente intenta ver ese pedido: responde 404 para no revelar que existe."
+          }
+        },
+        {
+          "name": "4.11 Cliente cambia el estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}",
+                "estado"
+              ]
+            },
+            "description": "Solo la administradora cambia estados.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"entregado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.12 Admin: pedidos pendientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye el pedido del cliente', () => pm.expect(pm.response.json().map(p => p.id)).to.include(Number(pm.collectionVariables.get('pedidoId'))));",
+                  "pm.test('Todos están pendientes', () => pm.response.json().forEach(p => pm.expect(p.estado).to.eql('pendiente')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos?estado=pendiente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "pendiente"
+                }
+              ]
+            },
+            "description": "La administradora ve los pedidos de todos los clientes."
+          }
+        },
+        {
+          "name": "4.13 Admin: marcar pagado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda pagado', () => pm.expect(pm.response.json().pedido.estado).to.eql('pagado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedido2Id}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedido2Id}}",
+                "estado"
+              ]
+            },
+            "description": "pendiente → pagado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"pagado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.14 Admin: marcar enviado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda enviado', () => pm.expect(pm.response.json().pedido.estado).to.eql('enviado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedido2Id}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedido2Id}}",
+                "estado"
+              ]
+            },
+            "description": "pagado → enviado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"enviado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.15 Cambio de estado no permitido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Explica la regla', () => pm.expect(pm.response.json().mensaje).to.eql('Un pedido \"enviado\" no puede pasar a \"pendiente\"'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedido2Id}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedido2Id}}",
+                "estado"
+              ]
+            },
+            "description": "Un pedido enviado no puede volver a pendiente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"pendiente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4.16 Cliente cancela su pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Mensaje: Pedido cancelado', () => pm.expect(pm.response.json().mensaje).to.eql('Pedido cancelado'));",
+                  "pm.test('Queda cancelado', () => pm.expect(pm.response.json().pedido.estado).to.eql('cancelado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}",
+                "cancelar"
+              ]
+            },
+            "description": "El pedido 4.2 sigue pendiente: el cliente lo cancela y los 2 bodies vuelven al inventario."
+          }
+        },
+        {
+          "name": "4.17 Verificar stock devuelto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('El body tiene 3 unidades', () => pm.expect(pm.response.json().stock).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Quedaban 1 (después del pedido de la admin) + 2 devueltos."
+          }
+        },
+        {
+          "name": "4.18 Cancelar un pedido enviado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje: Solo puedes cancelar pedidos que estén pendientes', () => pm.expect(pm.response.json().mensaje).to.eql('Solo puedes cancelar pedidos que estén pendientes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedido2Id}}/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedido2Id}}",
+                "cancelar"
+              ]
+            },
+            "description": "El cliente solo puede cancelar pedidos pendientes."
+          }
+        },
+        {
+          "name": "4.19 Eliminar producto con pedidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Sugiere desactivarlo', () => pm.expect(pm.response.json().mensaje).to.include('Desactívalo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "Un producto vendido no se borra (llave foránea RESTRICT); se debe desactivar."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Usuarios",
+      "description": "Administración de cuentas: solo para la administradora.",
+      "item": [
+        {
+          "name": "5.1 Cliente lista usuarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Un cliente no puede ver las cuentas."
+          }
+        },
+        {
+          "name": "5.2 Admin lista clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Todos son clientes', () => pm.response.json().forEach(u => pm.expect(u.rol).to.eql('cliente')));",
+                  "pm.test('Incluye al cliente de prueba', () => pm.expect(pm.response.json().map(u => u.id)).to.include(Number(pm.collectionVariables.get('clienteId'))));",
+                  "pm.test('Ningún usuario trae la contraseña', () => pm.expect(pm.response.text()).to.not.include('contrasena'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?rol=cliente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "rol",
+                  "value": "cliente"
+                }
+              ]
+            },
+            "description": "Filtra por rol."
+          }
+        },
+        {
+          "name": "5.3 Admin consulta un usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Es el cliente de prueba', () => pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('clienteEmail')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{clienteId}}"
+              ]
+            },
+            "description": "Detalle de una cuenta."
+          }
+        },
+        {
+          "name": "5.4 Admin se desactiva a sí misma",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje: No puedes quitarte el rol de administrador ni desactivar tu propia cuenta', () => pm.expect(pm.response.json().mensaje).to.eql('No puedes quitarte el rol de administrador ni desactivar tu propia cuenta'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{adminId}}"
+              ]
+            },
+            "description": "Protección: la administradora no puede dejarse por fuera.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "5.5 Admin desactiva al cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Mensaje: Usuario actualizado', () => pm.expect(pm.response.json().mensaje).to.eql('Usuario actualizado'));",
+                  "pm.test('Queda inactivo', () => pm.expect(pm.response.json().usuario.activo).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{clienteId}}"
+              ]
+            },
+            "description": "Bloquea la cuenta del cliente de prueba.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "5.6 Token del cliente desactivado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Mensaje: El usuario no existe o está desactivado', () => pm.expect(pm.response.json().mensaje).to.eql('El usuario no existe o está desactivado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": "Su token todavía no vence, pero la API revisa el usuario en cada petición."
+          }
+        },
+        {
+          "name": "5.7 Login de cuenta desactivada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "pm.test('Mensaje: Tu cuenta está desactivada. Comunícate con la tienda', () => pm.expect(pm.response.json().mensaje).to.eql('Tu cuenta está desactivada. Comunícate con la tienda'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "No puede volver a entrar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasena\": \"{{clienteContrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Versiones y errores generales",
+      "description": "Versionamiento de la API y respuestas de error comunes.",
+      "item": [
+        {
+          "name": "6.1 Ruta sin versión (obsoleta)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Encabezado Deprecation: true', () => pm.expect(pm.response.headers.get('Deprecation')).to.eql('true'));",
+                  "pm.test('Indica la versión que la reemplaza', () => pm.expect(pm.response.headers.get('Link')).to.include('/api/v1'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/productos",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "description": "Las rutas antiguas siguen funcionando, pero avisan que se deben cambiar a /api/v1."
+          }
+        },
+        {
+          "name": "6.2 Ruta que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404 Not Found', () => pm.response.to.have.status(404));",
+                  "pm.test('Mensaje: No existe la ruta GET /api/v1/no-existe', () => pm.expect(pm.response.json().mensaje).to.eql('No existe la ruta GET /api/v1/no-existe'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "no-existe"
+              ]
+            },
+            "description": "Responde 404 en JSON."
+          }
+        },
+        {
+          "name": "6.3 JSON mal escrito",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje: El cuerpo de la petición no es un JSON válido', () => pm.expect(pm.response.json().mensaje).to.eql('El cuerpo de la petición no es un JSON válido'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "El cuerpo no es un JSON válido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{ email: sin comillas ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "6.4 Id no numérico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje: El id debe ser un número entero positivo', () => pm.expect(pm.response.json().mensaje).to.eql('El id debe ser un número entero positivo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productos/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "abc"
+              ]
+            },
+            "description": "Los ids deben ser números enteros positivos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Limpieza",
+      "description": "Oculta de la tienda los datos de prueba. Los productos vendidos no se pueden borrar, así que se desactivan.",
+      "item": [
+        {
+          "name": "7.1 Desactivar body de prueba",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda inactivo', () => pm.expect(Boolean(pm.response.json().producto.activo)).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{bodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{bodyId}}"
+              ]
+            },
+            "description": "activo = false: deja de verse en la tienda.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Body de prueba Postman\",\n  \"categoriaId\": {{categoriaId}},\n  \"precio\": 30000,\n  \"stock\": 0,\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "7.2 Desactivar gorro de prueba",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productos/{{gorroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos",
+                "{{gorroId}}"
+              ]
+            },
+            "description": "activo = false",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Gorro de prueba Postman\",\n  \"categoriaId\": {{categoriaId}},\n  \"precio\": 60000,\n  \"stock\": 0,\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "7.3 Desactivar categoría de prueba",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "activo = false",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{categoriaNombre}}\",\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@babysarai.com",
+      "type": "string"
+    },
+    {
+      "key": "adminContrasena",
+      "value": "Admin2026",
+      "type": "string"
+    },
+    {
+      "key": "clienteContrasena",
+      "value": "Cliente2026",
+      "type": "string"
+    },
+    {
+      "key": "clienteEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clienteEmailMayusculas",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "intrusoEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenCliente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAlterado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "respuestaClaveMala",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoriaNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoriaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bodyId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "gorroId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pedidoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pedido2Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pedidoAdminId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
