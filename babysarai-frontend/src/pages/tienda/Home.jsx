@@ -80,12 +80,12 @@ export default function Home() {
       <section className="promesas" aria-label="Cómo compras en Baby Saraí">
         <ul className="wrap promesas-lista">
           <li>
-            <strong>Pedido por WhatsApp</strong>
-            <span>Te confirmamos disponibilidad al instante</span>
+            <strong>Compra en línea</strong>
+            <span>Crea tu cuenta y sigue tu pedido</span>
           </li>
           <li>
-            <strong>Envío fijo de $8.000</strong>
-            <span>A cualquier ciudad de Colombia</span>
+            <strong>Envío de $10.000</strong>
+            <span>Gratis desde $150.000 en compras</span>
           </li>
           <li>
             <strong>Cambios hasta 15 días</strong>

@@ -66,3 +66,66 @@ export function validarCategoria(datos) {
 
   return errores;
 }
+
+/** Formato básico de correo, igual al de la API (usuarioValidator.js). */
+const FORMATO_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Teléfono: números, espacios, + y guiones, de 7 a 20 caracteres. */
+const FORMATO_TELEFONO = /^[0-9+\- ]{7,20}$/;
+
+/**
+ * Valida el formulario de inicio de sesión.
+ * @param {{email: string, contrasena: string}} datos
+ * @returns {Object} Errores por campo.
+ */
+export function validarLogin(datos) {
+  const errores = {};
+  if (!datos.email.trim()) errores.email = 'Escribe tu correo';
+  if (!datos.contrasena) errores.contrasena = 'Escribe tu contraseña';
+  return errores;
+}
+
+/**
+ * Valida el formulario de registro con las mismas reglas de la API.
+ * @param {{nombre: string, email: string, telefono: string, contrasena: string, confirmacion: string}} datos
+ * @returns {Object} Errores por campo.
+ */
+export function validarRegistro(datos) {
+  const errores = {};
+  const nombre = datos.nombre.trim();
+  if (nombre.length < 3 || nombre.length > 100) {
+    errores.nombre = 'Escribe tu nombre (3 a 100 caracteres)';
+  }
+  if (!FORMATO_EMAIL.test(datos.email.trim())) {
+    errores.email = 'Escribe un correo válido';
+  }
+  if (datos.telefono.trim() && !FORMATO_TELEFONO.test(datos.telefono.trim())) {
+    errores.telefono = 'Solo números, espacios, + y guiones (7 a 20)';
+  }
+  if (datos.contrasena.length < 8 || datos.contrasena.length > 72) {
+    errores.contrasena = 'Usa entre 8 y 72 caracteres';
+  } else if (!/[a-zA-Z]/.test(datos.contrasena) || !/[0-9]/.test(datos.contrasena)) {
+    errores.contrasena = 'Incluye al menos una letra y un número';
+  }
+  if (datos.confirmacion !== datos.contrasena) {
+    errores.confirmacion = 'Las contraseñas no coinciden';
+  }
+  return errores;
+}
+
+/**
+ * Valida los datos de envío del pedido.
+ * @param {{direccionEnvio: string, ciudad: string, telefono: string, notas: string}} datos
+ * @returns {Object} Errores por campo.
+ */
+export function validarEnvio(datos) {
+  const errores = {};
+  const direccion = datos.direccionEnvio.trim();
+  if (!direccion) errores.direccionEnvio = 'Escribe la dirección de entrega';
+  else if (direccion.length > 200) errores.direccionEnvio = 'Máximo 200 caracteres';
+  if (!datos.ciudad.trim()) errores.ciudad = 'Escribe la ciudad';
+  if (!FORMATO_TELEFONO.test(datos.telefono.trim())) {
+    errores.telefono = 'Escribe un teléfono de contacto válido';
+  }
+  if (datos.notas.trim().length > 255) errores.notas = 'Máximo 255 caracteres';
+  return errores;
+}

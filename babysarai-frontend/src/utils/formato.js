@@ -21,3 +21,18 @@ export function formatearPrecio(valor) {
 export function normalizarTexto(texto = '') {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
+
+/**
+ * Muestra una fecha de MySQL en formato colombiano. Ejemplo: "24/11/2026, 3:30 p. m.".
+ * @param {string|Date} valor
+ * @param {{conHora?: boolean}} [opciones] - conHora: false muestra solo la fecha.
+ * @returns {string}
+ */
+export function formatearFecha(valor, { conHora = true } = {}) {
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return '—';
+  return fecha.toLocaleString('es-CO', {
+    dateStyle: 'medium',
+    ...(conHora && { timeStyle: 'short' }),
+  });
+}

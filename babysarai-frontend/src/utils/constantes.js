@@ -37,8 +37,37 @@ export const LIMITES = {
 /** Unidades en stock desde las cuales se avisa que quedan pocas. */
 export const STOCK_BAJO = 2;
 
-/** Costo fijo de envío a cualquier ciudad (política de la tienda). */
-export const COSTO_ENVIO = 8000;
+/**
+ * Reglas del envío. Deben coincidir con ENVIO_COSTO y ENVIO_GRATIS_DESDE del .env de la API:
+ * el front-end solo las usa para MOSTRAR un estimado; el total real lo calcula la API.
+ */
+export const ENVIO = { costo: 10000, gratisDesde: 150000 };
+
+/**
+ * Estados de un pedido (ENUM de la tabla pedidos): texto para mostrar y tono de la etiqueta.
+ */
+export const ESTADOS_PEDIDO = {
+  pendiente: { texto: 'Pendiente', tono: 'aviso' },
+  pagado: { texto: 'Pagado', tono: 'si' },
+  enviado: { texto: 'Enviado', tono: 'si' },
+  entregado: { texto: 'Entregado', tono: 'si' },
+  cancelado: { texto: 'Cancelado', tono: 'no' },
+};
+
+/**
+ * Estados a los que la administradora puede pasar un pedido desde cada estado.
+ * Es la misma tabla TRANSICIONES de src/services/pedidoService.js en la API.
+ */
+export const TRANSICIONES_PEDIDO = {
+  pendiente: ['pagado', 'cancelado'],
+  pagado: ['enviado', 'cancelado'],
+  enviado: ['entregado'],
+  entregado: [],
+  cancelado: [],
+};
+
+/** Roles de usuario (ENUM de la tabla usuarios). */
+export const ROLES = { admin: 'Administradora', cliente: 'Cliente' };
 
 /** Opciones de orden del catálogo. */
 export const ORDENES_CATALOGO = [

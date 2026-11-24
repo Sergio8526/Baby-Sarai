@@ -1,8 +1,8 @@
 /**
- * Barra de pasos de la compra: Carrito → Pedido por WhatsApp → Confirmación.
+ * Barra de pasos de la compra: Carrito → Datos de envío → Confirmación.
  */
 
-const PASOS = ['Carrito', 'Pedido por WhatsApp', 'Confirmación'];
+const PASOS = ['Carrito', 'Datos de envío', 'Confirmación'];
 
 /**
  * @param {{pasoActual: number}} props - Número del paso actual, empezando en 1.
