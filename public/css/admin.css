@@ -443,6 +443,68 @@ td:last-child button + button { margin-left: 6px; }
 .etiqueta.si { color: var(--salvia); background: var(--salvia-fondo); }
 .etiqueta.no { color: #8a5a63; background: var(--rosa-tenue); }
 
+
+/* ---------- Ventana de confirmación ---------- */
+dialog.confirmacion {
+  width: min(440px, calc(100vw - 32px));
+  padding: 32px 28px 24px;
+  border: none;
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  color: var(--tinta);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(43, 33, 31, 0.22), 0 2px 6px rgba(43, 33, 31, 0.08);
+}
+dialog.confirmacion::backdrop {
+  background: rgba(46, 34, 38, 0.45);
+  backdrop-filter: blur(3px);
+}
+
+.confirmacion-icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  color: var(--error);
+  background: var(--error-fondo);
+}
+.confirmacion-icono svg { width: 30px; height: 30px; }
+dialog[data-tipo='activar'] .confirmacion-icono,
+dialog[data-tipo='mostrar'] .confirmacion-icono { color: var(--salvia); background: var(--salvia-fondo); }
+dialog[data-tipo='desactivar'] .confirmacion-icono,
+dialog[data-tipo='ocultar'] .confirmacion-icono { color: #8a5a3c; background: #f8e6d8; }
+
+dialog.confirmacion h2 { font-size: 21px; line-height: 1.25; margin-bottom: 8px; }
+dialog.confirmacion p { margin: 0 auto; max-width: 34ch; color: var(--tinta-suave); font-size: 14.5px; }
+
+.confirmacion-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
+}
+button.peligro-solido { background: var(--error); }
+@media (hover: hover) and (pointer: fine) {
+  button.peligro-solido:hover { background: #8a2f29; }
+}
+
+/* Entrada: aparece desde un poco más pequeña y abajo (nunca desde cero) */
+dialog.confirmacion[open] { animation: ventana-entra 260ms var(--salida); }
+dialog.confirmacion[open]::backdrop { animation: fondo-entra 260ms var(--salida); }
+dialog.confirmacion[open] .confirmacion-icono { animation: icono-entra 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 60ms both; }
+
+/* Salida: más rápida que la entrada */
+dialog.confirmacion.cerrando { animation: ventana-sale 160ms var(--salida) forwards; }
+dialog.confirmacion.cerrando::backdrop { animation: fondo-sale 160ms var(--salida) forwards; }
+
+@keyframes ventana-entra { from { opacity: 0; transform: translateY(10px) scale(0.95); } }
+@keyframes ventana-sale { to { opacity: 0; transform: translateY(6px) scale(0.97); } }
+@keyframes fondo-entra { from { opacity: 0; } }
+@keyframes fondo-sale { to { opacity: 0; } }
+@keyframes icono-entra { from { opacity: 0; transform: scale(0.6) rotate(-12deg); } }
+
 /* ---------- Pantallas pequeñas ---------- */
 @media (max-width: 860px) {
   body { display: block; background: var(--fondo); }
