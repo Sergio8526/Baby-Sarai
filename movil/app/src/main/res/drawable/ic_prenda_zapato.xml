@@ -1,0 +1,13 @@
+<!-- Ilustración propia: patuco de bebé -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#B5956E"
+        android:pathData="M7,22Q7,15 13,15L20,15L22,24Q31,25 39,28Q43,30 43,34L43,37L7,37Z" />
+    <path
+        android:fillColor="#1A2E4A"
+        android:pathData="M7,37L43,37L43,40L7,40Z" />
+</vector>

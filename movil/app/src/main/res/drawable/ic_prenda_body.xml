@@ -1,0 +1,18 @@
+<!-- Ilustración propia: body de bebé -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#E87C8A"
+        android:pathData="M16,8L21,8Q24,12 27,8L32,8L41,14L37,21L32,18L32,33L27,41L24,37L21,41L16,33L16,18L11,21L7,14Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M21,8Q24,12 27,8" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,34.8a1.2,1.2 0,1 1,0 2.4a1.2,1.2 0,1 1,0 -2.4zM26,34.8a1.2,1.2 0,1 1,0 2.4a1.2,1.2 0,1 1,0 -2.4z" />
+</vector>

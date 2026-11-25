@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paleta de la marca Baby Saraí (la misma de la tienda web) -->
+<resources>
+    <color name="crema">#FFF8F5</color>
+    <color name="rosa_principal">#C4856A</color>
+    <color name="rosa_acento">#E87C8A</color>
+    <color name="dorado">#B5956E</color>
+    <color name="azul_noche">#1A2E4A</color>
+    <color name="gris_texto">#6B6B76</color>
+    <color name="blanco">#FFFFFF</color>
+    <color name="linea">#EADCD5</color>
+    <color name="amarillo_aviso">#FFF1D6</color>
+    <color name="verde_ok">#3E8E6B</color>
+    <color name="rojo_error">#B3261E</color>
+
+    <!-- Fondos de las ilustraciones por categoría -->
+    <color name="fondo_rosa">#FCE4E4</color>
+    <color name="fondo_crema">#F7ECDF</color>
+    <color name="fondo_menta">#E2F1EA</color>
+    <color name="fondo_lila">#ECE5F5</color>
+    <color name="fondo_durazno">#FDE7D8</color>
+    <color name="fondo_celeste">#E3EEF8</color>
+</resources>

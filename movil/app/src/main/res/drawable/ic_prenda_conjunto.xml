@@ -1,0 +1,13 @@
+<!-- Ilustración propia: conjunto de camiseta y short -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#5FA383"
+        android:pathData="M16,6L21,6Q24,9 27,6L32,6L38,11L34,15L32,13L32,23L16,23L16,13L14,15L10,11Z" />
+    <path
+        android:fillColor="#1A2E4A"
+        android:pathData="M16,26L32,26L33,41L26,41L24,33L22,41L15,41Z" />
+</vector>

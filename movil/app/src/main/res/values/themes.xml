@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema de la app basado en Material Design 3 con los colores de la marca -->
+    <style name="Theme.BabySarai" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/rosa_principal</item>
+        <item name="colorOnPrimary">@color/blanco</item>
+        <item name="colorPrimaryContainer">@color/fondo_rosa</item>
+        <item name="colorOnPrimaryContainer">@color/azul_noche</item>
+        <item name="colorSecondary">@color/dorado</item>
+        <item name="colorOnSecondary">@color/blanco</item>
+        <item name="colorSecondaryContainer">@color/fondo_durazno</item>
+        <item name="colorOnSecondaryContainer">@color/azul_noche</item>
+        <item name="colorSurface">@color/blanco</item>
+        <item name="colorOnSurface">@color/azul_noche</item>
+        <item name="colorError">@color/rojo_error</item>
+        <item name="android:colorBackground">@color/crema</item>
+        <item name="android:statusBarColor">@color/crema</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Estilos reutilizables (buenas prácticas: no repetir atributos en cada layout) -->
+    <style name="TextoTitulo" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/azul_noche</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextoSecundario" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/gris_texto</item>
+    </style>
+
+    <style name="TextoPrecio" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/rosa_principal</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Pastilla">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/fondo_pastilla</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/azul_noche</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+</resources>

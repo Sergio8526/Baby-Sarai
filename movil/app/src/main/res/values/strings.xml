@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Baby Saraí</string>
+
+    <!-- Navegación -->
+    <string name="nav_catalogo">Catálogo</string>
+    <string name="nav_carrito">Carrito</string>
+    <string name="nav_pedidos">Pedidos</string>
+
+    <!-- Títulos -->
+    <string name="titulo_catalogo">Baby Saraí</string>
+    <string name="titulo_detalle">Detalle del producto</string>
+    <string name="titulo_carrito">Mi carrito</string>
+    <string name="titulo_checkout">Finalizar pedido</string>
+    <string name="titulo_pedidos">Mis pedidos</string>
+
+    <!-- Catálogo -->
+    <string name="buscar_hint">Buscar bodies, pijamas, tallas…</string>
+    <string name="todas">Todas</string>
+    <string name="reintentar">Reintentar</string>
+    <string name="catalogo_vacio">No encontramos prendas con esos filtros.</string>
+    <string name="agotado">Agotado</string>
+    <string name="segunda_mano">Segunda mano</string>
+    <string name="formato_talla_estado">%1$s · %2$s</string>
+    <string name="cd_ilustracion">Ilustración de la prenda</string>
+    <plurals name="resultados">
+        <item quantity="one">%d prenda</item>
+        <item quantity="other">%d prendas</item>
+    </plurals>
+
+    <!-- Detalle -->
+    <string name="formato_talla">Talla %1$s</string>
+    <string name="cantidad">Cantidad</string>
+    <string name="agregar_carrito">Agregar al carrito</string>
+    <string name="ver_carrito">Ver carrito</string>
+    <string name="cd_menos">Quitar una unidad</string>
+    <string name="cd_mas">Agregar una unidad</string>
+    <plurals name="unidades_disponibles">
+        <item quantity="one">Queda %d unidad</item>
+        <item quantity="other">%d unidades disponibles</item>
+    </plurals>
+
+    <!-- Carrito -->
+    <string name="subtotal">Subtotal</string>
+    <string name="envio">Envío</string>
+    <string name="total">Total</string>
+    <string name="gratis">Gratis</string>
+    <string name="continuar_pedido">Continuar con el pedido</string>
+    <string name="carrito_vacio">Tu carrito está vacío</string>
+    <string name="carrito_vacio_detalle">Explora el catálogo y agrega las prendas que te gusten.</string>
+    <string name="ir_catalogo">Ir al catálogo</string>
+    <string name="falta_envio_gratis">Te faltan %1$s para el envío gratis</string>
+    <string name="tienes_envio_gratis">¡Tu pedido tiene envío gratis!</string>
+    <string name="formato_talla_precio">Talla %1$s · %2$s c/u</string>
+    <string name="producto_eliminado">Se quitó «%1$s»</string>
+    <string name="deshacer">Deshacer</string>
+    <string name="cd_eliminar">Quitar del carrito</string>
+    <plurals name="prendas">
+        <item quantity="one">%d prenda</item>
+        <item quantity="other">%d prendas</item>
+    </plurals>
+
+    <!-- Checkout -->
+    <string name="datos_entrega">Datos de entrega</string>
+    <string name="hint_nombre">Nombre completo</string>
+    <string name="hint_telefono">Celular</string>
+    <string name="hint_direccion">Dirección</string>
+    <string name="hint_ciudad">Ciudad</string>
+    <string name="metodo_pago">Método de pago</string>
+    <string name="resumen">Resumen del pedido</string>
+    <string name="confirmar_pedido">Confirmar pedido</string>
+    <string name="pedido_registrado_titulo">¡Pedido registrado!</string>
+    <string name="pedido_registrado_mensaje">Tu pedido #%1$d quedó registrado. Te escribiremos por WhatsApp para coordinar la entrega.</string>
+    <string name="ver_mis_pedidos">Ver mis pedidos</string>
+
+    <!-- Pedidos -->
+    <string name="formato_numero_pedido">Pedido #%1$d</string>
+    <string name="formato_entrega">%1$s, %2$s</string>
+    <string name="sin_pedidos">Todavía no tienes pedidos</string>
+    <string name="sin_pedidos_detalle">Cuando confirmes una compra, la verás aquí.</string>
+</resources>
