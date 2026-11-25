@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pestañas de la barra de navegación inferior (mapa de navegación) -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_catalogo"
+        android:icon="@drawable/ic_catalogo"
+        android:title="@string/nav_catalogo" />
+    <item
+        android:id="@+id/nav_carrito"
+        android:icon="@drawable/ic_carrito"
+        android:title="@string/nav_carrito" />
+    <item
+        android:id="@+id/nav_pedidos"
+        android:icon="@drawable/ic_pedidos"
+        android:title="@string/nav_pedidos" />
+</menu>

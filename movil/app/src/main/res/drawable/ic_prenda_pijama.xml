@@ -1,0 +1,15 @@
+<!-- Ilustración propia: pijama enteriza con cierre -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#8E7CC3"
+        android:pathData="M16,6L32,6L41,13L37,20L32,17L32,29L34,39Q34,43 30,43L27,43L24,32L21,43L18,43Q14,43 14,39L16,29L16,17L11,20L7,13Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:fillColor="#00000000"
+        android:pathData="M24,7L24,30" />
+</vector>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Desde Android 9 las apps no pueden usar HTTP sin cifrar por defecto.
+  En desarrollo, la API corre en http://localhost:3000 del computador,
+  así que se permite HTTP solo para estas direcciones locales.
+  En producción la API debe publicarse con HTTPS.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>   <!-- Emulador → computador -->
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <!-- Teléfono físico: agregar aquí la IP del computador, por ejemplo:
+        <domain includeSubdomains="false">192.168.1.50</domain> -->
+    </domain-config>
+</network-security-config>

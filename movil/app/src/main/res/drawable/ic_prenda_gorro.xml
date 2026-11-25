@@ -1,0 +1,16 @@
+<!-- Ilustración propia: gorro tejido con pompón -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#E8A065"
+        android:pathData="M10,32Q10,14 24,14Q38,14 38,32Z" />
+    <path
+        android:fillColor="#C4856A"
+        android:pathData="M8,32L40,32L40,38L8,38Z" />
+    <path
+        android:fillColor="#C4856A"
+        android:pathData="M24,5a4.5,4.5 0,1 1,0 9a4.5,4.5 0,1 1,0 -9z" />
+</vector>

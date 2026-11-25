@@ -1,0 +1,5 @@
+// Archivo de compilación raíz. Solo declara la versión del plugin de Android;
+// cada módulo (en este proyecto solo :app) lo aplica en su propio build.gradle.
+plugins {
+    id 'com.android.application' version '8.11.1' apply false
+}
