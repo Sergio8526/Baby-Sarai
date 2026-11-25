@@ -1,0 +1,301 @@
+/* =====================================================
+   Baby Saraí - Cuenta del cliente
+   -----------------------------------------------------
+   Estilos de las páginas agregadas en la integración de módulos
+   (GA8-220501096-AA1-EV01): ingresar, registro, datos de envío,
+   mis pedidos y el acceso a la cuenta en el encabezado.
+   Usa los mismos tokens de tienda.css (--color-*, --space-*, --radius-*).
+   ===================================================== */
+
+/* ---------- Acceso a la cuenta en el encabezado ---------- */
+.cuenta-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cuenta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  transition:
+    border-color 160ms var(--salida),
+    color 160ms var(--salida);
+}
+
+.cuenta-link:hover {
+  border-color: var(--color-rose);
+  color: var(--color-rose-dark);
+}
+
+.cuenta-salir {
+  border: none;
+  background: none;
+  padding: 8px 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cuenta-salir:hover {
+  color: var(--color-rose-dark);
+}
+
+@media (max-width: 720px) {
+  .cuenta-link span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .cuenta-link {
+    padding: 8px 10px;
+  }
+}
+
+/* ---------- Tarjetas de formulario (ingresar, registro, envío) ---------- */
+.cuenta-layout {
+  display: grid;
+  justify-items: center;
+}
+
+.cuenta-card {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-7) var(--space-6);
+}
+
+.cuenta-layout .cuenta-card {
+  max-width: 560px;
+}
+
+.cuenta-card .titulo-pagina {
+  margin-bottom: var(--space-3);
+}
+
+.cuenta-card form {
+  margin-top: var(--space-5);
+}
+
+.cuenta-card .btn-block {
+  margin-top: var(--space-3);
+}
+
+.cuenta-bajada {
+  color: var(--color-ink-soft);
+  margin-bottom: var(--space-5);
+}
+
+.cuenta-alterna {
+  margin-top: var(--space-5);
+  text-align: center;
+  color: var(--color-ink-soft);
+}
+
+.cuenta-alterna a,
+.breadcrumb a {
+  color: var(--color-rose-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.campo-ayuda {
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+}
+
+.form-field input:not([type='checkbox']):not([type='radio']) {
+  width: 100%;
+}
+
+/* ---------- Avisos ---------- */
+.aviso-cuenta {
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  background: var(--color-sage-bg);
+  color: var(--color-sage);
+}
+
+.aviso-cuenta--error {
+  background: #f9e6e3;
+  color: var(--color-error);
+}
+
+.aviso-cuenta ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.aviso-cuenta p {
+  margin: var(--space-2) 0 0;
+}
+
+.enlace-boton {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Resumen de la compra ---------- */
+.resumen-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  font-size: 0.92rem;
+}
+
+.resumen-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Mis pedidos ---------- */
+.lista-pedidos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pedido-fila {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 0.8fr 0.8fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  transition:
+    border-color 160ms var(--salida),
+    transform 160ms var(--salida);
+}
+
+.pedido-fila:hover {
+  border-color: var(--color-rose);
+  transform: translateY(-1px);
+}
+
+.pedido-numero {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.pedido-fecha {
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .pedido-fila {
+    grid-template-columns: 1fr auto;
+  }
+  .pedido-fecha {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+
+/* Etiqueta de estado del pedido en la tienda */
+.estado-pedido {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--color-blush);
+  color: var(--color-rose-dark);
+}
+
+.estado-pagado,
+.estado-enviado,
+.estado-entregado {
+  background: var(--color-sage-bg);
+  color: var(--color-sage);
+}
+
+.estado-cancelado {
+  background: #eee9e6;
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Detalle del pedido ---------- */
+.detalle-pedido-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.detalle-pedido-cabecera .titulo-pagina {
+  margin-bottom: var(--space-1);
+}
+
+.lineas-pedido ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lineas-pedido li,
+.lineas-pedido dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1.5px dashed var(--color-line);
+}
+
+.lineas-pedido small {
+  color: var(--color-ink-soft);
+}
+
+.lineas-pedido dl {
+  margin: var(--space-3) 0 0;
+}
+
+.lineas-pedido dd {
+  margin: 0;
+}
+
+.lineas-pedido .total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-bottom: none;
+}
+
+.summary-card .btn-quieto {
+  margin-top: var(--space-4);
+}
+
+/* El ícono de la confirmación va centrado sobre el título */
+.confirmation .confirmation-icon {
+  margin: 0 auto var(--space-5);
+}

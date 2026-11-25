@@ -1,17 +1,18 @@
 /**
- * Configuración de la conexión a MySQL.
- * Los datos de acceso se leen del archivo .env para no exponerlos en el código.
+ * Conexión a MySQL.
+ * Se usa un "pool": un grupo de conexiones abiertas que se reutilizan,
+ * en lugar de abrir y cerrar una conexión en cada petición.
+ * Los datos de acceso vienen de config/env.js, que los lee del archivo .env.
  */
-require('dotenv').config();
 const mysql = require('mysql2/promise');
+const { db } = require('./env.js');
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  ...db,
   waitForConnections: true,
   connectionLimit: 10,
+  // Los DECIMAL (precio, total) llegan como número y no como texto
+  decimalNumbers: true,
 });
 
 module.exports = pool;

@@ -1,0 +1,11 @@
+/* Línea extra de React: talla y disponibilidad (la tienda estática no la tenía) */
+.detalle {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 4px;
+}
+
+.agotado {
+  color: var(--color-error);
+  font-weight: 600;
+}

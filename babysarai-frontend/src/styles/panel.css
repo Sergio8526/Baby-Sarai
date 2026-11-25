@@ -1,0 +1,924 @@
+/* =====================================================
+   Baby Saraí - Sistema de diseño del PANEL DE ADMINISTRACIÓN
+   -----------------------------------------------------
+   Basado en public/css/admin.css (rediseño del panel en la AA3).
+   Diferencia con el original: allá los estilos se aplicaban al
+   <body> de cada página HTML. Aquí la tienda y el panel viven en
+   la misma aplicación, así que TODAS las reglas empiezan con
+   ".panel" (el contenedor de AdminLayout). Así los estilos del
+   panel nunca afectan a la tienda.
+   ===================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Color: mismos valores de la tienda */
+  --fondo: #fbf6f1; /* crema cálido */
+  --superficie: #ffffff;
+  --tinta: #2b211f; /* texto principal */
+  --tinta-suave: #6b5d59; /* texto secundario */
+  --linea: #e7ddd5; /* bordes */
+  --linea-fuerte: #d6c8bf;
+  --rosa: #c4667a; /* acento de marca */
+  --rosa-oscuro: #a84f62; /* botones (contraste AA con texto blanco) */
+  --rosa-hondo: #8e3f51; /* hover */
+  --rosa-tenue: #f8e9ec;
+  --durazno: #f3d6c0;
+  --salvia: #4f6b4a; /* texto de éxito */
+  --salvia-fondo: #e6ece3;
+  --error: #a63c35;
+  --error-fondo: #f9e6e3;
+
+  /* Barra lateral */
+  --riel: #2e2226;
+  --riel-texto: #f3e7e1;
+  --riel-tenue: #b9a7a2;
+
+  /* Tipografía */
+  --fuente-titulos: 'Fraunces', Georgia, serif;
+  --fuente-texto: 'Work Sans', -apple-system, 'Segoe UI', sans-serif;
+
+  /* Forma y espacio */
+  --radio-sm: 6px;
+  --radio: 10px;
+  --radio-lg: 16px;
+  --sombra: 0 1px 2px rgba(43, 33, 31, 0.05), 0 6px 16px rgba(43, 33, 31, 0.05);
+}
+
+/* ---------- Contenedor general (antes era el <body>) ---------- */
+.panel {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  font-family: var(--fuente-texto);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--tinta);
+  /* El fondo pinta la columna de la barra para que llegue hasta el final de la página */
+  background: linear-gradient(to right, var(--riel) 248px, var(--fondo) 248px);
+  caret-color: var(--rosa-oscuro);
+}
+
+.panel h1,
+.panel h2 {
+  font-family: var(--fuente-titulos);
+  font-weight: 600;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.panel :focus-visible {
+  outline: 2px solid var(--rosa-oscuro);
+  outline-offset: 2px;
+}
+
+/* ---------- Barra lateral ---------- */
+.panel .barra {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 28px 16px;
+  background: var(--riel);
+  color: var(--riel-texto);
+}
+
+.panel .marca {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px 22px;
+  color: inherit;
+  text-decoration: none;
+  /* Firma del diseño: costura punteada, como el pespunte de una prenda */
+  border-bottom: 1.5px dashed rgba(243, 214, 192, 0.35);
+}
+.panel .marca-nombre {
+  font-family: var(--fuente-titulos);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.panel .marca-detalle {
+  font-size: 13px;
+  color: var(--riel-tenue);
+}
+
+.panel .barra nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel .barra nav a,
+.panel .barra .ver-tienda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radio);
+  color: var(--riel-tenue);
+  text-decoration: none;
+  font-weight: 500;
+  transition:
+    background-color 150ms var(--salida),
+    color 150ms var(--salida);
+}
+.panel .barra svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.panel .barra nav a.activo {
+  background: var(--durazno);
+  color: var(--tinta);
+}
+
+.panel .barra .ver-tienda {
+  margin-top: auto;
+  border-top: 1.5px dashed rgba(243, 214, 192, 0.2);
+  border-radius: 0;
+  padding-top: 16px;
+}
+
+/* ---------- Contenido ---------- */
+.panel .panel-contenido {
+  width: 100%;
+  max-width: 1120px;
+  padding: 40px 40px 64px;
+  min-width: 0;
+}
+
+.panel .cabecera-pagina {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.panel .cabecera-pagina h1 {
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.panel .cabecera-pagina p {
+  margin: 6px 0 0;
+  color: var(--tinta-suave);
+  max-width: 60ch;
+}
+
+/* ---------- Tarjetas (áreas de trabajo) ---------- */
+.panel .tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.panel .tarjeta h2 {
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+/* ---------- Formularios (12 columnas) ---------- */
+.panel .formulario {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+.panel .span-3 {
+  grid-column: span 3;
+}
+.panel .span-4 {
+  grid-column: span 4;
+}
+.panel .span-5 {
+  grid-column: span 5;
+}
+.panel .span-7 {
+  grid-column: span 7;
+}
+.panel .completo {
+  grid-column: 1 / -1;
+}
+
+.panel .formulario label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--tinta-suave);
+}
+
+.panel .formulario .casilla {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  min-height: 44px;
+  font-size: 14.5px;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+/* Error de validación debajo del campo (nuevo en React) */
+.panel .campo-error {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--error);
+}
+.panel [aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.panel input,
+.panel select,
+.panel textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  transition:
+    border-color 150ms var(--salida),
+    box-shadow 150ms var(--salida);
+}
+.panel input::placeholder {
+  color: #7d6d68;
+}
+.panel input:hover,
+.panel select:hover {
+  border-color: #bfaea4;
+}
+.panel input:focus,
+.panel select:focus {
+  outline: none;
+  border-color: var(--rosa-oscuro);
+  box-shadow: 0 0 0 3px rgba(196, 102, 122, 0.22);
+}
+
+.panel select {
+  appearance: none;
+  padding-right: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b5d59' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.panel input[type='checkbox'] {
+  width: 20px;
+  min-height: 0;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--rosa-oscuro);
+  cursor: pointer;
+}
+
+/* Quita las flechas de los campos numéricos para un aspecto limpio */
+.panel input[type='number'] {
+  -moz-appearance: textfield;
+  font-variant-numeric: tabular-nums;
+}
+.panel input[type='number']::-webkit-inner-spin-button,
+.panel input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.panel .acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+/* ---------- Botones ---------- */
+.panel button,
+.panel .boton {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: var(--rosa-oscuro);
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--salida),
+    border-color 150ms var(--salida),
+    color 150ms var(--salida),
+    transform 120ms var(--salida);
+}
+.panel button:active {
+  transform: scale(0.97);
+}
+.panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.panel button.secundario {
+  color: var(--tinta);
+  background: var(--superficie);
+  border-color: var(--linea-fuerte);
+}
+
+.panel button.peligro {
+  color: var(--error);
+  background: var(--superficie);
+  border-color: #e8c3be;
+}
+
+/* Botones de la tabla: discretos, para no competir con los datos */
+.panel button.pequeno {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  color: var(--tinta);
+  background: var(--superficie);
+  border-color: var(--linea-fuerte);
+}
+.panel button.pequeno.peligro {
+  color: var(--error);
+  border-color: #e8c3be;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .panel .barra nav a:not(.activo):hover,
+  .panel .barra .ver-tienda:hover {
+    background: rgba(243, 231, 225, 0.08);
+    color: var(--riel-texto);
+  }
+  .panel button:hover:not(:disabled) {
+    background: var(--rosa-hondo);
+  }
+  .panel button.secundario:hover:not(:disabled),
+  .panel button.pequeno:hover:not(:disabled) {
+    background: var(--fondo);
+    border-color: #bfaea4;
+  }
+  .panel button.peligro:hover:not(:disabled),
+  .panel button.pequeno.peligro:hover:not(:disabled) {
+    background: var(--error-fondo);
+    border-color: #dba59e;
+  }
+}
+
+/* ---------- Mensajes ---------- */
+.panel .mensaje {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 14px 16px 14px 46px;
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  font-size: 14.5px;
+  font-weight: 500;
+  animation: aparecer 220ms var(--salida);
+}
+.panel .mensaje::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 15px;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+.panel .mensaje.exito {
+  color: var(--salvia);
+  background: var(--salvia-fondo);
+  border-color: #cbd8c6;
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='m8 12.5 2.8 2.8L16.5 9.5'/%3E%3C/svg%3E");
+}
+.panel .mensaje.error {
+  color: var(--error);
+  background: var(--error-fondo);
+  border-color: #efc9c3;
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01'/%3E%3C/svg%3E");
+}
+.panel .mensaje ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  list-style: disc;
+  font-weight: 400;
+}
+.panel .mensaje li + li {
+  margin-top: 2px;
+}
+.panel .mensaje .cerrar {
+  min-height: 0;
+  padding: 0 4px;
+  font-size: 20px;
+  line-height: 1;
+  color: inherit;
+  background: none;
+}
+.panel .mensaje .cerrar:hover {
+  background: none !important;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- Tablas ---------- */
+.panel .encabezado-tabla {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.panel .encabezado-tabla h2 {
+  margin: 0;
+}
+.panel .filtros-tabla {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.panel .filtros-tabla input,
+.panel .filtros-tabla select {
+  width: auto;
+  min-width: 230px;
+}
+
+.panel .tabla-contenedor {
+  overflow-x: auto;
+  margin: 0 -28px -28px;
+  border-top: 1px solid var(--linea);
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel th,
+.panel td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--linea);
+}
+.panel th:first-child,
+.panel td:first-child {
+  padding-left: 28px;
+}
+.panel th:last-child,
+.panel td:last-child {
+  padding-right: 28px;
+}
+.panel tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.panel th {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--tinta-suave);
+  background: #fdfaf7;
+  white-space: nowrap;
+}
+
+.panel td {
+  font-size: 14.5px;
+}
+.panel td:first-child {
+  font-weight: 500;
+  min-width: 190px;
+}
+.panel .tabla-productos td:not(:first-child) {
+  white-space: nowrap;
+}
+
+.panel tbody tr {
+  transition: background-color 120ms var(--salida);
+}
+@media (hover: hover) {
+  .panel tbody tr:hover {
+    background: #fdf8f5;
+  }
+}
+
+/* Precio y stock alineados a la derecha, con cifras del mismo ancho */
+.panel .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Columna de acciones */
+.panel td.acciones-fila {
+  white-space: nowrap;
+}
+.panel td.acciones-fila button + button {
+  margin-left: 6px;
+}
+
+.panel .vacio {
+  padding: 48px 16px !important;
+  text-align: center;
+  color: var(--tinta-suave);
+  font-weight: 400 !important;
+}
+
+/* ---------- Etiquetas de estado ---------- */
+.panel .etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 11px 3px 9px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.panel .etiqueta::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.panel .etiqueta.si {
+  color: var(--salvia);
+  background: var(--salvia-fondo);
+}
+.panel .etiqueta.no {
+  color: #8a5a63;
+  background: var(--rosa-tenue);
+}
+.panel .etiqueta.aviso {
+  color: #8a5a3c;
+  background: #f8e6d8;
+}
+
+/* ---------- Ventana de confirmación (<dialog>) ---------- */
+dialog.confirmacion {
+  width: min(440px, calc(100vw - 32px));
+  padding: 32px 28px 24px;
+  border: none;
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  color: var(--tinta);
+  font-family: var(--fuente-texto);
+  text-align: center;
+  box-shadow:
+    0 24px 60px rgba(43, 33, 31, 0.22),
+    0 2px 6px rgba(43, 33, 31, 0.08);
+}
+dialog.confirmacion::backdrop {
+  background: rgba(46, 34, 38, 0.45);
+  backdrop-filter: blur(3px);
+}
+
+.panel .confirmacion-icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  color: var(--error);
+  background: var(--error-fondo);
+}
+.panel .confirmacion-icono svg {
+  width: 30px;
+  height: 30px;
+}
+
+.panel dialog.confirmacion h2 {
+  font-size: 21px;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.panel dialog.confirmacion p {
+  margin: 0 auto;
+  max-width: 34ch;
+  color: var(--tinta-suave);
+  font-size: 14.5px;
+}
+
+.panel .confirmacion-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
+}
+.panel button.peligro-solido {
+  background: var(--error);
+}
+@media (hover: hover) and (pointer: fine) {
+  .panel button.peligro-solido:hover:not(:disabled) {
+    background: #8a2f29;
+  }
+}
+
+/* Entrada: aparece desde un poco más pequeña y abajo (nunca desde cero) */
+dialog.confirmacion[open] {
+  animation: ventana-entra 260ms var(--salida);
+}
+dialog.confirmacion[open]::backdrop {
+  animation: fondo-entra 260ms var(--salida);
+}
+.panel dialog.confirmacion[open] .confirmacion-icono {
+  animation: icono-entra 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 60ms both;
+}
+
+@keyframes ventana-entra {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+@keyframes fondo-entra {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes icono-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-12deg);
+  }
+}
+
+/* ---------- Resumen (nuevo en React) ---------- */
+.panel .indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.panel .indicador {
+  margin-bottom: 0;
+  padding: 22px 24px;
+}
+.panel .indicador h2 {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--tinta-suave);
+}
+.panel .indicador-valor {
+  margin: 8px 0 4px;
+  font-family: var(--fuente-titulos);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.panel .indicador-nota {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--tinta-suave);
+}
+.panel .lista-stock li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1.5px dashed var(--linea);
+}
+.panel .lista-stock li:last-child {
+  border-bottom: none;
+}
+.panel .enlace {
+  color: var(--rosa-oscuro);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 860px) {
+  .panel {
+    display: block;
+    background: var(--fondo);
+  }
+
+  .panel .barra {
+    position: sticky;
+    height: auto;
+    z-index: 10;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .panel .marca {
+    padding: 0;
+    border-bottom: none;
+  }
+  .panel .marca-nombre {
+    font-size: 20px;
+  }
+  .panel .marca-detalle,
+  .panel .barra .ver-tienda {
+    display: none;
+  }
+  .panel .barra nav {
+    flex-direction: row;
+  }
+  .panel .barra nav a {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .panel .barra nav a svg {
+    display: none;
+  }
+
+  .panel .panel-contenido {
+    padding: 28px 16px 48px;
+  }
+  .panel .cabecera-pagina h1 {
+    font-size: 28px;
+  }
+  .panel .tarjeta {
+    padding: 20px;
+    border-radius: var(--radio);
+  }
+  .panel .tabla-contenedor {
+    margin: 0 -20px -20px;
+  }
+  .panel th:first-child,
+  .panel td:first-child {
+    padding-left: 20px;
+  }
+  .panel th:last-child,
+  .panel td:last-child {
+    padding-right: 20px;
+  }
+  .panel .filtros-tabla,
+  .panel .filtros-tabla input,
+  .panel .filtros-tabla select {
+    width: 100%;
+  }
+  .panel .acciones button {
+    flex: 1 1 auto;
+  }
+  .panel .formulario > * {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .panel *,
+  .panel *::before,
+  .panel *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =====================================================
+   Integración de módulos (GA8-AA1-EV01):
+   sesión de la administradora, pedidos y usuarios
+   ===================================================== */
+.panel .barra .sesion-panel {
+  margin-top: auto;
+  border-top: 1.5px dashed rgba(243, 214, 192, 0.2);
+  padding-top: 16px;
+}
+.panel .barra .sesion-panel p {
+  margin: 0 12px 8px;
+  display: grid;
+  font-size: 13px;
+  color: var(--riel-tenue);
+}
+.panel .barra .sesion-panel strong {
+  color: var(--riel-texto);
+  font-weight: 600;
+  font-size: 14px;
+}
+.panel .barra .sesion-panel + .ver-tienda {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+.panel .barra button.salir {
+  width: 100%;
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+  justify-content: flex-start;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-weight: 500;
+}
+@media (hover: hover) {
+  .panel .barra button.salir:hover:not(:disabled) {
+    background: rgba(243, 231, 225, 0.08);
+    color: var(--riel-texto);
+  }
+}
+
+/* Detalle de un pedido dentro del panel */
+.panel .detalle-pedido-panel {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin-top: 8px;
+}
+.panel .detalle-pedido-panel h3 {
+  font-family: var(--fuente-titulos);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.panel .detalle-pedido-panel p {
+  margin: 0 0 6px;
+  color: var(--tinta-suave);
+}
+.panel .lineas-pedido ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.panel .lineas-pedido li,
+.panel .lineas-pedido dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--linea);
+}
+.panel .lineas-pedido dl {
+  margin: 8px 0 0;
+}
+.panel .lineas-pedido dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.panel .lineas-pedido .total {
+  font-weight: 600;
+  border-bottom: none;
+}
+.panel .lineas-pedido small {
+  color: var(--tinta-suave);
+}
+.panel .botones-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.panel tr.seleccionada td {
+  background: var(--rosa-tenue);
+}
+@media (max-width: 760px) {
+  .panel .detalle-pedido-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Acciones de la tabla de usuarios: un botón debajo del otro para que la tabla quepa */
+.panel .acciones-apiladas {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 112px;
+}

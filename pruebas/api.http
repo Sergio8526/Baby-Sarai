@@ -1,0 +1,112 @@
+### =====================================================
+### Baby Saraí · Pruebas manuales de la API v1
+### Se ejecutan con la extensión REST Client de VS Code
+### (botón "Send Request" encima de cada petición).
+### =====================================================
+
+@base = http://localhost:3000/api/v1
+
+### 1. Registrar un cliente
+POST {{base}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Laura Gómez",
+  "email": "laura@correo.com",
+  "contrasena": "Clave2026",
+  "telefono": "3001234567"
+}
+
+### 2. Iniciar sesión como cliente (guarda el token en @tokenCliente)
+# @name loginCliente
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "laura@correo.com",
+  "contrasena": "Clave2026"
+}
+
+### 3. Iniciar sesión como administradora (cuenta creada con npm run crear-admin)
+# @name loginAdmin
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@babysarai.com",
+  "contrasena": "Admin2026"
+}
+
+@tokenCliente = {{loginCliente.response.body.token}}
+@tokenAdmin = {{loginAdmin.response.body.token}}
+
+### 4. Perfil del cliente
+GET {{base}}/auth/perfil
+Authorization: Bearer {{tokenCliente}}
+
+### 5. Catálogo público
+GET {{base}}/productos?soloActivos=true
+
+### 6. Un cliente intenta crear una categoría → 403
+POST {{base}}/categorias
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+
+{ "nombre": "Vestidos" }
+
+### 7. La administradora crea una categoría → 201
+POST {{base}}/categorias
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "nombre": "Vestidos", "descripcion": "Vestidos para niña de 0 a 24 meses" }
+
+### 8. Crear un pedido
+POST {{base}}/pedidos
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+
+{
+  "items": [
+    { "productoId": 1, "cantidad": 1 },
+    { "productoId": 5, "cantidad": 2 }
+  ],
+  "direccionEnvio": "Calle 140 # 12-30, apto 402",
+  "ciudad": "Bogotá",
+  "telefono": "3001234567",
+  "notas": "Entregar en portería"
+}
+
+### 9. Mis pedidos
+GET {{base}}/pedidos
+Authorization: Bearer {{tokenCliente}}
+
+### 10. Detalle de un pedido
+GET {{base}}/pedidos/1
+Authorization: Bearer {{tokenCliente}}
+
+### 11. Cancelar un pedido pendiente (el stock vuelve)
+PATCH {{base}}/pedidos/1/cancelar
+Authorization: Bearer {{tokenCliente}}
+
+### 12. Admin: todos los pedidos pendientes
+GET {{base}}/pedidos?estado=pendiente
+Authorization: Bearer {{tokenAdmin}}
+
+### 13. Admin: marcar un pedido como pagado
+PATCH {{base}}/pedidos/2/estado
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "estado": "pagado" }
+
+### 14. Admin: listar clientes
+GET {{base}}/usuarios?rol=cliente
+Authorization: Bearer {{tokenAdmin}}
+
+### 15. Admin: desactivar un cliente
+PATCH {{base}}/usuarios/1
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "activo": false }

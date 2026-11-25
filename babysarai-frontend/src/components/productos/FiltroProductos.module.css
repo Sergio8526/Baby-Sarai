@@ -1,0 +1,39 @@
+/* Campos nuevos de React (buscar y ordenar) con el estilo de la tienda */
+.grupo {
+  margin-bottom: var(--space-5);
+}
+
+.etiqueta {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 560;
+  margin-bottom: var(--space-2);
+}
+
+.campo {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.campo:focus {
+  border-color: var(--color-rose);
+  outline: none;
+}
+
+.limpiar {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+@media (max-width: 860px) {
+  .grupo {
+    width: 100%;
+    margin-bottom: 0;
+  }
+}

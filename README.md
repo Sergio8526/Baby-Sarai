@@ -1,75 +1,137 @@
 # Baby Saraí
 
 Tienda en línea de ropa y accesorios para bebé, nuevos y de segunda mano.
-Este repositorio contiene el backend (API REST) y el panel de administración del catálogo.
+Este repositorio contiene el backend (API REST), el panel de administración del catálogo
+y el front-end en React (`babysarai-frontend`).
+
+**Versión actual de la API:** `v1` · **Versión del proyecto:** 2.1.1 (ver [CHANGELOG.md](CHANGELOG.md))
 
 ## Tecnologías
 
 - **Node.js** con **Express 5** (servidor y API REST)
-- **MySQL** (base de datos `baby_sarai`)
-- **mysql2** (conexión a la base de datos con consultas parametrizadas)
+- **MySQL** (base de datos `baby_sarai`) con **mysql2** (consultas parametrizadas y transacciones)
+- **bcryptjs** (cifrado de contraseñas) y **jsonwebtoken** (tokens JWT)
+- **OpenAPI 3** + **swagger-ui-express** (documentación interactiva en `/api/docs`)
 - **dotenv** (configuración por variables de entorno)
-- HTML, CSS y JavaScript (panel de administración)
+- **React 19**, **React Router 7** y **Vite** (front-end en `babysarai-frontend`)
+- **node:test** y **Vitest** (pruebas automáticas), **ESLint** y **Prettier** (calidad del código)
 
 ## Estructura del proyecto
 
 ```
 Baby_Sarai_Sena/
-├── babysarai-web/        Sitio web de la tienda (front-end estático)
-├── database/             Scripts SQL, se ejecutan en orden numérico
-├── public/               Panel de administración
-│   ├── css/              Estilos compartidos
-│   ├── js/               Lógica de cada página
-│   ├── productos.html
-│   └── categorias.html
+├── babysarai-frontend/   Front-end en React (AA4-EV03)
+├── babysarai-web/        Sitio web estático de la tienda
+├── database/             Scripts SQL, se ejecutan en orden numérico (001 a 004)
+├── docs/
+│   └── openapi.yaml      Especificación de todos los servicios (Swagger)
+├── public/               Panel de administración (HTML, CSS, JS)
+├── pruebas/
+│   ├── unitarias/        Pruebas unitarias sin base de datos (npm run test:unit)
+│   ├── api.test.js       Pruebas de integración contra MySQL (npm run test:integracion)
+│   ├── api.http          Pruebas manuales con REST Client
+│   └── postman/          Colección de Postman (AA5-EV04)
+├── scripts/
+│   └── crearAdmin.js     Crea la cuenta de administración
 ├── src/
-│   ├── config/           Conexión a MySQL
+│   ├── config/           Variables de entorno y conexión a MySQL
 │   ├── controllers/      Reciben las peticiones y devuelven las respuestas
-│   ├── middlewares/      Manejo centralizado de errores
+│   ├── middlewares/      Autenticación, roles y manejo de errores
 │   ├── models/           Consultas SQL
-│   ├── routes/           Definición de las rutas de la API
-│   ├── utils/            Clases y funciones de apoyo
+│   ├── routes/           Rutas de la API (v1.js reúne la versión 1)
+│   ├── services/         Reglas de negocio con transacciones (pedidos)
+│   ├── utils/            AppError y tokens JWT
 │   ├── validators/       Validación de los datos recibidos
-│   └── app.js            Punto de entrada del servidor
+│   ├── app.js            Configuración de Express
+│   └── server.js         Punto de entrada: inicia el servidor
 ├── .env.example          Plantilla de variables de entorno
+├── iniciar.bat           Lanzador para Windows
+├── CHANGELOG.md          Historial de versiones
 └── package.json
 ```
 
 ## Instalación
 
-1. Clonar el repositorio:
+1. Clonar el repositorio e instalar las dependencias:
    ```
    git clone https://github.com/Sergio8526/Baby-Sarai.git
    cd Baby-Sarai
-   ```
-2. Instalar las dependencias:
-   ```
    npm install
    ```
-3. Crear la base de datos ejecutando en MySQL, en este orden:
-   - `database/001_productos.sql`
-   - `database/002_catalogo.sql`
-4. Copiar `.env.example` como `.env` y completar la contraseña de MySQL.
+2. Crear la base de datos ejecutando en MySQL, en este orden:
+   `001_productos.sql`, `002_catalogo.sql`, `003_datos_prueba.sql` y `004_usuarios_pedidos.sql`.
+3. Copiar `.env.example` como `.env` y completar la contraseña de MySQL y `JWT_SECRETO`.
+4. Crear la cuenta de administración:
+   ```
+   npm run crear-admin -- "Nombre Apellido" admin@babysarai.com "Admin2026"
+   ```
 5. Iniciar el servidor:
    ```
-   node src/app.js
+   npm start
    ```
-6. Abrir el panel en `http://localhost:3000/productos.html`
+6. Abrir la documentación en `http://localhost:3000/api/docs`
 
-## API
+## Ejecutar la aplicación completa (tienda + panel + API)
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/api/categorias` | Lista las categorías (`?soloActivas=true` para filtrar) |
-| GET | `/api/categorias/:id` | Consulta una categoría |
-| POST | `/api/categorias` | Crea una categoría |
-| PUT | `/api/categorias/:id` | Actualiza una categoría |
-| DELETE | `/api/categorias/:id` | Elimina una categoría sin productos asociados |
-| GET | `/api/productos` | Lista los productos (`?categoriaId=1&soloActivos=true`) |
-| GET | `/api/productos/:id` | Consulta un producto |
-| POST | `/api/productos` | Crea un producto |
-| PUT | `/api/productos/:id` | Actualiza un producto |
-| DELETE | `/api/productos/:id` | Elimina un producto |
+Después de la instalación (pasos 1 a 4):
+
+```
+npm run install:front     # dependencias del front-end (solo la primera vez)
+npm run build:front       # compila React en babysarai-frontend/dist
+npm start                 # http://localhost:3000
+```
+
+**En Windows** también se puede hacer doble clic en `iniciar.bat`: revisa Node.js, crea el `.env` la primera vez, instala las dependencias, compila el front-end si hace falta, inicia el servidor y abre el navegador. El manual técnico completo está en [docs/MANUAL_TECNICO.md](docs/MANUAL_TECNICO.md).
+
+Con el front-end compilado, Express sirve todo desde el mismo puerto: la tienda en `/`, el panel en `/admin`, la API en `/api/v1` y la documentación en `/api/docs`.
+
+Para **desarrollar** el front-end con recarga automática se usan dos terminales: `npm start` en la raíz y `npm run dev` dentro de `babysarai-frontend` (abre `http://localhost:5173`).
+
+## Scripts
+
+| Comando | Qué hace |
+|---|---|
+| `npm start` | Inicia el servidor (API + front-end compilado) |
+| `npm run dev` | Inicia el servidor y lo reinicia al guardar cambios |
+| `npm test` | Ejecuta las pruebas unitarias y luego las de integración |
+| `npm run test:unit` | 47 pruebas unitarias, no necesitan MySQL |
+| `npm run test:integracion` | 33 pruebas de integración (requiere MySQL encendido) |
+| `npm run build:front` | Compila el front-end en `babysarai-frontend/dist` |
+| `npm run install:front` | Instala las dependencias del front-end |
+| `npm run lint` | Revisa el código con ESLint |
+| `npm run format` | Da formato al código con Prettier |
+| `npm run crear-admin` | Crea o promueve la cuenta de administración |
+
+## Servicios de la API v1
+
+Ruta base: `/api/v1`. 🔓 público · 🔑 requiere token · 👑 solo administración.
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| POST | `/auth/registro` | 🔓 | Crea una cuenta de cliente |
+| POST | `/auth/login` | 🔓 | Inicia sesión y devuelve un token JWT |
+| GET | `/auth/perfil` | 🔑 | Datos del usuario dueño del token |
+| GET | `/categorias` | 🔓 | Lista las categorías (`?soloActivas=true`) |
+| GET | `/categorias/:id` | 🔓 | Consulta una categoría |
+| POST | `/categorias` | 👑 | Crea una categoría |
+| PUT | `/categorias/:id` | 👑 | Actualiza una categoría |
+| DELETE | `/categorias/:id` | 👑 | Elimina una categoría sin productos |
+| GET | `/productos` | 🔓 | Lista los productos (`?categoriaId=1&soloActivos=true`) |
+| GET | `/productos/:id` | 🔓 | Consulta un producto |
+| POST | `/productos` | 👑 | Crea un producto |
+| PUT | `/productos/:id` | 👑 | Actualiza un producto |
+| DELETE | `/productos/:id` | 👑 | Elimina un producto sin pedidos |
+| POST | `/pedidos` | 🔑 | Crea un pedido y descuenta el inventario |
+| GET | `/pedidos` | 🔑 | Mis pedidos (admin: todos, `?estado=&usuarioId=`) |
+| GET | `/pedidos/:id` | 🔑 | Detalle de un pedido propio (admin: cualquiera) |
+| PATCH | `/pedidos/:id/cancelar` | 🔑 | Cancela un pedido pendiente; el stock vuelve |
+| PATCH | `/pedidos/:id/estado` | 👑 | Cambia el estado del pedido |
+| GET | `/usuarios` | 👑 | Lista los usuarios (`?rol=cliente`) |
+| GET | `/usuarios/:id` | 👑 | Consulta un usuario |
+| PATCH | `/usuarios/:id` | 👑 | Cambia el rol o activa/desactiva una cuenta |
+
+Flujo de un pedido: `pendiente → pagado → enviado → entregado`; se puede cancelar desde
+`pendiente` o `pagado`. El envío cuesta $10.000 y es gratis desde $150.000.
 
 ### Códigos de respuesta
 
@@ -78,19 +140,37 @@ Baby_Sarai_Sena/
 | 200 | Operación exitosa |
 | 201 | Registro creado |
 | 400 | Datos no válidos (la respuesta incluye la lista de errores en `detalles`) |
+| 401 | Falta el token, es inválido o venció; o correo/contraseña incorrectos |
+| 403 | El usuario no tiene permiso (rol) o su cuenta está desactivada |
 | 404 | Registro o ruta no encontrada |
-| 409 | Conflicto: nombre repetido o categoría con productos asociados |
+| 409 | Conflicto: dato repetido, sin stock, registro con dependencias o cambio de estado no permitido |
 | 500 | Error interno del servidor |
+
+### Versionamiento de la API
+
+Las rutas llevan la versión en la URL (`/api/v1/...`). Si un servicio cambia de forma
+incompatible se publicará `/api/v2` sin romper a quienes usan `v1`. Las rutas antiguas sin
+versión (`/api/productos`) siguen respondiendo, con el encabezado `Deprecation: true`.
+
+## Seguridad
+
+- Contraseñas cifradas con bcrypt (nunca se guardan ni se devuelven en texto plano).
+- Tokens JWT firmados con `JWT_SECRETO` y con vencimiento (`JWT_EXPIRA`).
+- En cada petición se consulta el usuario: si se desactiva o cambia de rol, el token viejo deja de servir.
+- El registro público solo crea clientes; la cuenta de administración se crea con un script.
+- Consultas SQL parametrizadas (`?`) contra la inyección SQL.
+- Los precios de un pedido se toman de la base de datos, no de lo que envía el cliente.
+- Mismo mensaje y mismo tiempo de respuesta si el correo no existe o la contraseña está mal.
 
 ## Estándares de codificación
 
-- Variables y funciones en `camelCase`; tablas y columnas de la base de datos en `snake_case`.
-- Funciones documentadas con JSDoc.
-- Consultas SQL siempre parametrizadas (`?`) para prevenir inyección SQL.
+- Variables y funciones en `camelCase`; tablas y columnas en `snake_case`.
+- Funciones documentadas con JSDoc; formato automático con Prettier y revisión con ESLint.
+- Arquitectura por capas: rutas → middlewares → controladores → validadores → servicios → modelos.
 - Credenciales fuera del código, en el archivo `.env` (excluido del repositorio).
 
 ## Control de versiones
 
 Se sigue una estrategia basada en GitFlow: cada módulo se desarrolla en una rama `feature/...`
-y se une a `master` cuando está terminado y probado. Los mensajes de commit siguen la
-convención de Conventional Commits (`feat:`, `fix:`, `chore:`).
+y se une a `master` cuando está terminado y probado. Los mensajes de commit siguen
+Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).

@@ -1,0 +1,31 @@
+/* =====================================================
+   Baby Saraí - Tipografías de la marca
+   Fraunces (títulos) y Work Sans (texto). Los archivos están
+   dentro del proyecto (src/assets/fonts), así que funcionan
+   sin internet y Vite los incluye en la versión final.
+   ===================================================== */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../assets/fonts/fraunces.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Work Sans';
+  src: url('../assets/fonts/work-sans-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Work Sans';
+  src: url('../assets/fonts/work-sans-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Work Sans';
+  src: url('../assets/fonts/work-sans-600.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
