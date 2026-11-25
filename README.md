@@ -4,7 +4,7 @@ Tienda en línea de ropa y accesorios para bebé, nuevos y de segunda mano.
 Este repositorio contiene el backend (API REST), el panel de administración del catálogo
 y el front-end en React (`babysarai-frontend`).
 
-**Versión actual de la API:** `v1` · **Versión del proyecto:** 2.1.0 (ver [CHANGELOG.md](CHANGELOG.md))
+**Versión actual de la API:** `v1` · **Versión del proyecto:** 2.1.1 (ver [CHANGELOG.md](CHANGELOG.md))
 
 ## Tecnologías
 
@@ -45,6 +45,7 @@ Baby_Sarai_Sena/
 │   ├── app.js            Configuración de Express
 │   └── server.js         Punto de entrada: inicia el servidor
 ├── .env.example          Plantilla de variables de entorno
+├── iniciar.bat           Lanzador para Windows
 ├── CHANGELOG.md          Historial de versiones
 └── package.json
 ```
@@ -79,6 +80,8 @@ npm run install:front     # dependencias del front-end (solo la primera vez)
 npm run build:front       # compila React en babysarai-frontend/dist
 npm start                 # http://localhost:3000
 ```
+
+**En Windows** también se puede hacer doble clic en `iniciar.bat`: revisa Node.js, crea el `.env` la primera vez, instala las dependencias, compila el front-end si hace falta, inicia el servidor y abre el navegador. El manual técnico completo está en [docs/MANUAL_TECNICO.md](docs/MANUAL_TECNICO.md).
 
 Con el front-end compilado, Express sirve todo desde el mismo puerto: la tienda en `/`, el panel en `/admin`, la API en `/api/v1` y la documentación en `/api/docs`.
 

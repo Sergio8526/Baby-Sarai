@@ -3,6 +3,13 @@
 El proyecto usa [versionamiento semántico](https://semver.org/lang/es/): `MAYOR.MENOR.PARCHE`.
 La API se versiona en la URL (`/api/v1`).
 
+## [2.1.1] - 2026-11-24 · Evidencia GA8-220501096-AA1-EV02
+
+### Agregado
+- `iniciar.bat`: lanzador para Windows que revisa Node.js, crea el `.env`, instala las
+  dependencias, compila el front-end si hace falta, inicia el servidor y abre el navegador.
+- Manual técnico en `docs/MANUAL_TECNICO.md`.
+
 ## [2.1.0] - 2026-11-24 · Evidencia GA8-220501096-AA1-EV01
 
 ### Agregado
@@ -11,7 +18,7 @@ La API se versiona en la URL (`/api/v1`).
 - Panel de administración protegido por rol: gestión de pedidos (detalle y cambio de estado)
   y de usuarios (rol y activación), y pedidos pendientes en el resumen.
 - Express sirve el front-end compilado (`babysarai-frontend/dist`) con fallback para React Router.
-- 47 pruebas unitarias del back-end sin base de datos (`npm run test:unit`) y 31 del front-end (Vitest).
+- 47 pruebas unitarias del back-end sin base de datos (`npm run test:unit`) y 33 del front-end (Vitest).
 
 ### Cambiado
 - El carrito ya no envía el pedido por WhatsApp: crea el pedido en la API.
