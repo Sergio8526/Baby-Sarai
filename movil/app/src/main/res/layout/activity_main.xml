@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Estructura fija de la app: barra superior, contenedor de módulos y navegación inferior -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/crema"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/crema"
+        app:titleTextColor="@color/azul_noche" />
+
+    <!-- Aquí se cargan los fragments de cada módulo -->
+    <FrameLayout
+        android:id="@+id/contenedor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navegacion_inferior"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blanco"
+        app:itemIconTint="@color/selector_navegacion"
+        app:itemTextColor="@color/selector_navegacion"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_navegacion" />
+
+</LinearLayout>
